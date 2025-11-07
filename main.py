@@ -109,10 +109,18 @@ if __name__ == "__main__":
     parser.add_argument("--smoothing_iterations", type=int, help="Smoothing iterations")
     parser.add_argument("--remesh_edge_length", type=float, help="Target edge length after uniform remeshing")
     parser.add_argument("--output_format", choices=["vtp", "stl"], help="Output file format")
+    parser.add_argument(
+        "--config_file", type=str, help="Path to configuration file (additional CLI arguments will override setting in here.)"
+    )
 
     args = parser.parse_args()
 
-    run_config = Config()
+    if args.config_file is not None:
+        with open(args.config_file, "r") as f:
+            run_config = Config(**json.load(f))
+    else:
+        run_config = Config()
+
     d = vars(args)
     for key, value in d.items():
         if value is not None:
