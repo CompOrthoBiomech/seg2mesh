@@ -1,0 +1,11 @@
+[project]
+name = "seg2mesh"
+version = "0.1.0"
+description = "A tool for converting label volumes to triangular meshes."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "pyacvd>=0.3.2",
+  "simpleitk>=2.5.2",
+  "vtk>=9.5.2",
+]
