@@ -1,3 +1,26 @@
+# Summary
+
+This is a script that converts NIfTI files to triangular meshes. It applies the following steps:
+
+- Detects all NIfTI files in provided input_dir
+- Looping over each file:
+  - Reads all NIfTI files in provided input_dir as a SimpleITK image
+  - Upsamples the image to an isotropic voxel size with the specified edge length: resample_voxel_length (default=0.3)
+  - Performs a Morphological Closing operation with indicated kernel radius: closing_radius (default=3) to fill small holes and lessen sharp features in the upsampled label volume
+- Combines all processed label volumes into a single volume
+- Uses vtkSurfaceNets3D to convert the label map into triangular meshes
+  - Applies constrained Laplacian smoothing based on provided parameters:
+    - smoothing_iterations (default=1000)
+    - smoothing_relaxation_factor (default=0.01)
+    - smoothing_distance (default=0.3)
+- Performs uniform remeshing of each triangular mesh targetting a specified edge length: remesh_edge_length (default=1.0)
+- Saves each mesh to disk in specified format at {output_dir}/{NIfTI_file_stem}.{output_format} where the defaults are:
+  - output_dir (default="output")
+  - output_format (default="vtp", choices=["vtp", "stl"])
+- {output_dir}/config.json is also written with all configuration parameters used during execution.
+
+
+
 # Installation
 
 With uv (recommended):
