@@ -73,3 +73,11 @@ uv run main.py --input_dir /path/to/input --output_dir /path/to/output
 ```
 
 The configuration settings you used for the run will be saved as *config.json* in the output directory.
+
+To run with settings indicated in a configuration JSON file, use the `--config_file` option:
+
+```bash
+uv run main.py --config_file /path/to/config.json
+```
+
+Any CLI arguments specified in addition to a configuration file will override the settings in the file.
