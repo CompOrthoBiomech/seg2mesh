@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
 
+import numpy as np
 import pyacvd
 import SimpleITK as sitk
 import vtkmodules.all as vtk
@@ -25,26 +26,35 @@ class Config:
 
 
 def main(config: Config):
-    volumes = []
+    original_volumes = []
     volume_names = []
+    largest_image = None
     for i, file in enumerate(Path(config.input_dir).glob("*.nii")):
         img = sitk.ReadImage(file.as_posix(), outputPixelType=sitk.sitkUInt8)
-        scale = [s / config.voxel_resample_length for s in img.GetSpacing()]
-        target_dim = [int(s * d + 0.5) for (s, d) in zip(scale, img.GetSize())]
-        origin = img.GetOrigin()
+        if largest_image is None:
+            largest_image = img
+        elif np.prod(largest_image.GetSize()) < np.prod(img.GetSize()):
+            largest_image = img
+        original_volumes.append(img)
+        volume_names.append(file.stem)
+    global_image_origin = largest_image.GetOrigin()
+    global_image_direction = largest_image.GetDirection()
+    scale = [s / config.voxel_resample_length for s in largest_image.GetSpacing()]
+    target_dim = [int(s * d + 0.5) for (s, d) in zip(scale, largest_image.GetSize())]
+    volumes = []
+    for i, (volume_name, img) in enumerate(zip(volume_names, original_volumes)):
         upsampled = sitk.Resample(
             img,
             target_dim,
             transform=sitk.Transform(),
             interpolator=sitk.sitkNearestNeighbor,
-            outputOrigin=origin,
+            outputOrigin=global_image_origin,
             outputSpacing=[config.voxel_resample_length] * 3,
-            outputDirection=img.GetDirection(),
+            outputDirection=global_image_direction,
         )
         label = sitk.GrayscaleMorphologicalClosing(upsampled, [config.closing_radius] * 3) * (i + 1)
         volumes.append(label)
-        volume_names.append(file.stem)
-        print(f"Added resampled {file} to volumes")
+        print(f"Added resampled {volume_name} to volumes")
 
     composite = volumes[0]
     for i, volume in enumerate(volumes[1:]):

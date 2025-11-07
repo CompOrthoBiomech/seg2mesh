@@ -3,9 +3,10 @@
 This is a script that converts NIfTI files to triangular meshes. It applies the following steps:
 
 - Detects all NIfTI files in provided input_dir
-- Looping over each file:
-  - Reads all NIfTI files in provided input_dir as a SimpleITK image
-  - Upsamples the image to an isotropic voxel size with the specified edge length: resample_voxel_length (default=0.3)
+- Reads all volumes into a list and identifies volume with the largest size
+- Largest volume origin, direction, and dimensions after upsampling define the target space for resampling
+- Looping over each volume:
+  - Resamples the image into the target space with an isotropic voxel size with the specified edge length: resample_voxel_length (default=0.3)
   - Performs a Morphological Closing operation with indicated kernel radius: closing_radius (default=3) to fill small holes and lessen sharp features in the upsampled label volume
 - Combines all processed label volumes into a single volume
 - Uses vtkSurfaceNets3D to convert the label map into triangular meshes
