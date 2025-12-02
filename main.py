@@ -151,13 +151,13 @@ def main(config: Config):
         mesh = _clean_poly(_grid_to_poly(threshold.GetOutput()))
 
         log.info(f"Extracted Mesh for {name}")
-        if config.taubin_smoothing_iterations > 0:
+        if config.smoothing_iterations > 0:
             log.info(f"Peforming Taubin Smoothing on {name}")
             # Taubin smoothing
             smooth = vtk.vtkWindowedSincPolyDataFilter()
             smooth.SetInputData(mesh)
-            smooth.SetNumberOfIterations(config.taubin_smoothing_iterations)
-            smooth.SetPassBand(config.taubin_smoothing_passband)
+            smooth.SetNumberOfIterations(config.smoothing_iterations)
+            smooth.SetPassBand(config.smoothing_passband)
             smooth.BoundarySmoothingOff()
             smooth.FeatureEdgeSmoothingOff()
             smooth.NonManifoldSmoothingOn()
