@@ -21,11 +21,8 @@ class Config:
     input_dir: str = "."
     voxel_resample_length: float = 0.2
     closing_radius: int = 5
-    lap_smoothing_distance: float = 0.2
-    lap_smoothing_relaxation_factor: float = 0.5
-    lap_smoothing_iterations: int = 200
-    taubin_smoothing_iterations: int = 40
-    taubin_smoothing_passband: float = 0.01
+    smoothing_iterations: int = 40
+    smoothing_passband: float = 0.01
     remesh_edge_length: float = 0.5
     output_dir: str = "output"
     output_format: Literal["vtp", "stl"] = "vtp"
@@ -135,53 +132,25 @@ def main(config: Config):
     with open(output_path.joinpath("config.json"), "w") as f:
         json.dump(asdict(config), fp=f, indent=4)
 
-    # SurfaceNets3D isocontouring
-    log.info("Performing SurfaceNets3D isocontouring on all labels")
-    snets = vtk.vtkSurfaceNets3D()
+    log.info("Performing FlyingEdges3D isocontouring on all labels")
+    snets = vtk.vtkDiscreteFlyingEdges3D()
     snets.SetInputData(vtkimage)
-    snets.GenerateLabels(len(volumes), 1, len(volumes))
-    # Internal constrained Laplacian smoothing of SurfaceNets3D, this constrains
-    # nodes on shared boundaries of labels
-    if config.lap_smoothing_iterations <= 0:
-        snets.SmoothingOff()
-    else:
-        snets.GetSmoother().SetNumberOfIterations(config.lap_smoothing_iterations)
-        snets.GetSmoother().SetConstraintDistance(config.lap_smoothing_distance)
-        snets.GetSmoother().SetRelaxationFactor(config.lap_smoothing_relaxation_factor)
-        snets.OptimizedSmoothingStencilsOn()
+    snets.GenerateValues(len(volumes), 1, len(volumes))
     snets.Update()
     snets_mesh = snets.GetOutput()
 
     for i, name in enumerate(volume_names):
         threshold = vtk.vtkThreshold()
         threshold.SetInputData(snets_mesh)
-        threshold.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
-        threshold.SetSelectedComponent(0)
+        threshold.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, vtk.vtkDataSetAttributes.SCALARS)
         threshold.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_BETWEEN)
         threshold.SetLowerThreshold(i + 0.5)
         threshold.SetUpperThreshold(i + 1.5)
         threshold.Update()
 
-        threshold2 = vtk.vtkThreshold()
-        threshold2.SetInputData(snets_mesh)
-        threshold2.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
-        threshold2.SetSelectedComponent(1)
-        threshold2.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_BETWEEN)
-        threshold2.SetLowerThreshold(i + 0.5)
-        threshold2.SetUpperThreshold(i + 1.5)
-        threshold2.Update()
+        mesh = _clean_poly(_grid_to_poly(threshold.GetOutput()))
 
         log.info(f"Extracted Mesh for {name}")
-        if threshold2.GetOutput().GetNumberOfCells() > 0:
-            merge = vtk.vtkAppendPolyData()
-            merge.AddInputData(_grid_to_poly(threshold.GetOutput()))
-            merge.AddInputData(_grid_to_poly(threshold2.GetOutput()))
-            merge.Update()
-
-            mesh = _clean_poly(merge.GetOutput())
-        else:
-            mesh = _clean_poly(_grid_to_poly(threshold.GetOutput()))
-
         if config.taubin_smoothing_iterations > 0:
             log.info(f"Peforming Taubin Smoothing on {name}")
             # Taubin smoothing
@@ -213,7 +182,7 @@ def main(config: Config):
         fix_normals = vtk.vtkPolyDataNormals()
         fix_normals.SetInputData(mesh)
         fix_normals.ConsistencyOn()
-        fix_normals.AutoOrientNormalsOn()
+        fix_normals.SplittingOn()
         fix_normals.Update()
 
         writer.SetFileName(output_path.joinpath(f"{name}.{config.output_format}").as_posix())
@@ -228,14 +197,8 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, help="Output directory for processed files")
     parser.add_argument("--voxel_resample_length", type=float, help="Voxel edge length after resampling")
     parser.add_argument("--closing_radius", type=int, help="Voxel radius of ball kernel used to morphological closing of labels.")
-    parser.add_argument("--lap_smoothing_distance", type=float, help="Radial distance a node can move during Laplacian smoothing")
-    parser.add_argument(
-        "--lap_smoothing_relaxation_factor",
-        help="Constrained Laplacian smoothing relaxation factor. Lower is more stable but requires more iterations.",
-    )
-    parser.add_argument("--lap_smoothing_iterations", type=int, help="Number of constrained Laplacian smoothing iterations")
-    parser.add_argument("--taubin_smoothing_iterations", type=int, help="Number of Taubin smoothing iterations")
-    parser.add_argument("--taubin_smoothing_passband", type=int, help="Windowed sinc function passband. Lower results in more smoothing.")
+    parser.add_argument("--smoothing_iterations", type=int, help="Number of Taubin smoothing iterations")
+    parser.add_argument("--smoothing_passband", type=int, help="Windowed sinc function passband. Lower results in more smoothing.")
     parser.add_argument(
         "--remesh_edge_length", type=float, help="Target edge length after uniform remeshing. If negative, no remeshing is performed."
     )
