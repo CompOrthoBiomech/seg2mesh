@@ -1,0 +1,10 @@
+{
+  "input_dir": "dat/oks003/segmentation/",
+  "voxel_resample_length": 0.2,
+  "closing_radius": 5,
+  "smoothing_iterations": 80,
+  "smoothing_passband": 0.001,
+  "remesh_edge_length": 1.0,
+  "output_dir": "oks003",
+  "output_format": "stl"
+}
