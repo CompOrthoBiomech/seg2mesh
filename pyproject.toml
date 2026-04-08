@@ -5,7 +5,9 @@ description = "A tool for converting label volumes to triangular meshes."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+  "gmsh>=4.15.2",
   "pyacvd>=0.3.2",
   "simpleitk>=2.5.2",
+  "simpleitkutilities>=0.3.0",
   "vtk>=9.5.2",
 ]
