@@ -1,6 +1,9 @@
 *.vtp
+*.vtk
+*.msh
 *.stl
 *.nii
+oks003
 # Python-generated files
 __pycache__/
 *.py[oc]
