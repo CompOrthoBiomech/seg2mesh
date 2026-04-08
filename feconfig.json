@@ -1,0 +1,6 @@
+{
+  "filepaths": ["fmc_clipped.stl"],
+  "element_edge_length": 5.0,
+  "element_order": 2,
+  "reduced_integration": true
+}
