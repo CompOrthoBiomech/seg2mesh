@@ -155,9 +155,7 @@ def main(config: Config):
     largest_image = None
     for i, file in enumerate(Path(config.input_dir).glob("*.nii")):
         img = sitk.ReadImage(file.as_posix(), outputPixelType=sitk.sitkUInt8)
-        if largest_image is None:
-            largest_image = img
-        elif np.prod(largest_image.GetSize()) < np.prod(img.GetSize()):
+        if largest_image is None or np.prod(largest_image.GetSize()) < np.prod(img.GetSize()):
             largest_image = img
         original_volumes.append(img)
         volume_names.append(file.stem)
