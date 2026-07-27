@@ -21,9 +21,12 @@ class Config:
     input_dir: str = "."
     voxel_resample_length: float = 0.2
     closing_radius: int = 5
+    make_congruent: list[tuple[str, str]] | None = None
     smoothing_iterations: int = 40
     smoothing_passband: float = 0.01
     remesh_edge_length: float = 0.5
+    smoothing2_iterations: int = 0
+    smoothing2_passband: float = 0.01
     output_dir: str = "output"
     output_format: Literal["vtp", "stl"] = "vtp"
 
@@ -43,6 +46,21 @@ def remove_islands(img: sitk.Image) -> sitk.Image:
     connected = components.Execute(img)
     sorted_labels = sitk.RelabelComponent(connected, sortByObjectSize=True)
     return sorted_labels == 1
+
+
+def taubin_smooth(poly: vtk.vtkPolyData, iterations: int = 40, passband: float = 0.01) -> vtk.vtkPolyData:
+    # Taubin smoothing
+    smooth = vtk.vtkWindowedSincPolyDataFilter()
+    smooth.SetInputData(poly)
+    smooth.SetNumberOfIterations(iterations)
+    smooth.SetPassBand(passband)
+    smooth.BoundarySmoothingOff()
+    smooth.FeatureEdgeSmoothingOff()
+    smooth.NonManifoldSmoothingOn()
+    smooth.SetGenerateErrorScalars(1)
+    smooth.NormalizeCoordinatesOn()
+    smooth.Update()
+    return smooth.GetOutput()
 
 
 def _grid_to_poly(grid: vtk.vtkUnstructuredGrid) -> vtk.vtkPolyData:
@@ -70,6 +88,64 @@ def _clean_poly(poly: vtk.vtkPolyData) -> vtk.vtkPolyData:
     return fillholes.GetOutput()
 
 
+def make_congruent(label1: sitk.Image, label2: sitk.Image) -> sitk.Image:
+    union = sitk.Or(label1, label2)
+    union = sitk.GrayscaleMorphologicalClosing(union, [3, 3, 3])
+    dilate_label1 = sitk.BinaryDilate(label1, [3, 3, 3])
+    dilate_label2 = sitk.BinaryDilate(label2, [3, 3, 3])
+    filled_label1 = sitk.Or(label1, sitk.And(dilate_label1, dilate_label2))
+    filled_label1 *= union
+    filled_label1 = sitk.BinaryMedian(filled_label1, [1, 1, 1]) * sitk.Not(label2)
+    return filled_label1
+
+
+def sitk_to_vtk_image(image: sitk.Image) -> vtk.vtkImageData:
+    nparray = sitk.GetArrayFromImage(image)
+    vtk_data = numpy_support.numpy_to_vtk(nparray.ravel(), deep=True, array_type=vtk.VTK_UNSIGNED_CHAR)
+    vtkimage = vtk.vtkImageData()
+    vtkimage.SetDimensions(nparray.shape[2], nparray.shape[1], nparray.shape[0])
+    vtkimage.SetSpacing(image.GetSpacing())
+    vtkimage.SetOrigin(image.GetOrigin())
+    vtkimage.GetPointData().SetScalars(vtk_data)
+    return vtkimage
+
+
+def merge_labels(label1: sitk.Image, label2: sitk.Image) -> sitk.Image:
+    union = sitk.Or(label1, label2)
+    union = sitk.GrayscaleMorphologicalClosing(union, [3, 3, 3])
+    union = sitk.BinaryMedian(sitk.BinaryFillhole(union))
+    label2_vtk = sitk_to_vtk_image(label2)
+    union = sitk_to_vtk_image(union)
+    meshes = []
+    for vol in (label2_vtk, union):
+        snets = vtk.vtkDiscreteFlyingEdges3D()
+        snets.SetInputData(vol)
+        snets.GenerateValues(1, 1, 1)
+        snets.Update()
+        log.info("Peforming Taubin Smoothing")
+        mesh = taubin_smooth(snets.GetOutput(), 80, 0.001)
+        meshes.append(mesh)
+    clip_function = vtk.vtkImplicitPolyDataDistance()
+    clip_function.SetInput(meshes[0])
+
+    clip = vtk.vtkClipPolyData()
+    clip.SetClipFunction(clip_function)
+    clip.SetValue(0.05)
+    clip.SetInputData(meshes[1])
+
+    connected = vtk.vtkPolyDataConnectivityFilter()
+    connected.SetInputConnection(clip.GetOutputPort())
+    connected.SetExtractionModeToLargestRegion()
+
+    smooth = vtk.vtkSmoothPolyDataFilter()
+    smooth.SetInputConnection(connected.GetOutputPort())
+    smooth.SetSourceData(meshes[0])
+    smooth.BoundarySmoothingOn()
+    smooth.SetNumberOfIterations(1000)
+    smooth.Update()
+    return smooth.GetOutput()
+
+
 def main(config: Config):
     output_path = Path(config.output_dir)
     if not output_path.exists():
@@ -90,6 +166,7 @@ def main(config: Config):
     scale = [s / config.voxel_resample_length for s in largest_image.GetSpacing()]
     target_dim = [int(s * d + 0.5) for (s, d) in zip(scale, largest_image.GetSize())]
     volumes = []
+    volume_lut = {}
     for i, (volume_name, img) in enumerate(zip(volume_names, original_volumes)):
         upsampled = sitk.Resample(
             img,
@@ -111,16 +188,33 @@ def main(config: Config):
         roi = sitk.RegionOfInterest(padded, size=size, index=index)
 
         label = sitk.GrayscaleMorphologicalClosing(roi, [config.closing_radius] * 3)
-        label = sitk.Resample(roi, interpolator=sitk.sitkNearestNeighbor, referenceImage=upsampled)
-        label = remove_islands(label) * (i + 1)
+        label = sitk.BinaryFillhole(label)
+        label = sitk.BinaryMedian(label, [2, 2, 2])
+        label = sitk.GrayscaleMorphologicalOpening(label, [1, 1, 1])
+        label = sitk.Resample(label, interpolator=sitk.sitkNearestNeighbor, referenceImage=upsampled)
         volumes.append(label)
         log.info(f"Added resampled {volume_name} to volumes")
+        volume_lut[volume_name] = i
+    if config.make_congruent is not None:
+        for (
+            volume1,
+            volume2,
+        ) in config.make_congruent:
+            log.info(f"Making {volume1} and {volume2} congruent. {volume1} will overwrite")
+            volumes[volume_lut[volume1]] = make_congruent(volumes[volume_lut[volume1]], volumes[volume_lut[volume2]])
+            mesh = merge_labels(volumes[volume_lut[volume1]], volumes[volume_lut[volume2]])
+            writer = vtk.vtkXMLPolyDataWriter()
+            writer.SetFileName(f"{volume1}_clipped.vtp")
+            writer.SetInputData(mesh)
+            writer.Write()
 
     composite = volumes[0]
     for i, volume in enumerate(volumes[1:]):
-        composite += volume
+        composite += volume * (i + 2)
         composite[composite > (i + 2)] = i + 2
     composite = sitk.ConstantPad(composite, padLowerBound=(1, 1, 1), padUpperBound=(1, 1, 1), constant=0)
+
+    sitk.WriteImage(composite, output_path.joinpath("composite.nii"))
     nparray = sitk.GetArrayFromImage(composite)
     vtk_data = numpy_support.numpy_to_vtk(nparray.ravel(), deep=True, array_type=vtk.VTK_UNSIGNED_CHAR)
     vtkimage = vtk.vtkImageData()
@@ -153,18 +247,7 @@ def main(config: Config):
         log.info(f"Extracted Mesh for {name}")
         if config.smoothing_iterations > 0:
             log.info(f"Peforming Taubin Smoothing on {name}")
-            # Taubin smoothing
-            smooth = vtk.vtkWindowedSincPolyDataFilter()
-            smooth.SetInputData(mesh)
-            smooth.SetNumberOfIterations(config.smoothing_iterations)
-            smooth.SetPassBand(config.smoothing_passband)
-            smooth.BoundarySmoothingOff()
-            smooth.FeatureEdgeSmoothingOff()
-            smooth.NonManifoldSmoothingOn()
-            smooth.SetGenerateErrorScalars(1)
-            smooth.NormalizeCoordinatesOn()
-            smooth.Update()
-            mesh = smooth.GetOutput()
+            mesh = taubin_smooth(mesh, config.smoothing_iterations, config.smoothing_passband)
 
         # Remesh using Approximated-discrete Centroidal Voronoi Diagram (ACVD) algorithm
         if config.remesh_edge_length > 0.0:
@@ -174,6 +257,10 @@ def main(config: Config):
             cluster.cluster(num_clusters)
             mesh = cluster.create_mesh()
             log.info(f"Uniform remeshing to edge length {config.remesh_edge_length} completed for {name}")
+            mesh = _clean_poly(mesh)
+            if config.smoothing2_iterations > 0:
+                log.info(f"Peforming Second Pass of Taubin Smoothing on {name}")
+                mesh = taubin_smooth(mesh, config.smoothing2_iterations, config.smoothing2_passband)
         if config.output_format == "stl":
             writer = vtk.vtkSTLWriter()
         else:

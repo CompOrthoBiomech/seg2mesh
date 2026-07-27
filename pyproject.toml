@@ -3,9 +3,28 @@ name = "seg2mesh"
 version = "0.1.0"
 description = "A tool for converting label volumes to triangular meshes."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
+  "gmsh>=4.15.2",
+  "loguru>=0.7.3",
+  "meshio>=5.3.5",
   "pyacvd>=0.3.2",
+  "pydantic>=2.13.4",
   "simpleitk>=2.5.2",
+  "simpleitkutilities>=0.3.0",
   "vtk>=9.5.2",
 ]
+
+[dependency-groups]
+dev = [
+    "autodoc-pydantic>=2.2.0",
+    "pytest>=9.1.1",
+    "sphinx>=9.1.0",
+    "sphinx-autodoc-typehints>=3.13.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.1.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"
