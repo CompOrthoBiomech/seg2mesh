@@ -4,6 +4,8 @@
 *.stl
 *.nii
 oks003
+docs/_build
+docs/_templates
 # Python-generated files
 __pycache__/
 *.py[oc]
