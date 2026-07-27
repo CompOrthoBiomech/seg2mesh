@@ -1,20 +1,31 @@
 from pathlib import Path
+from typing import Literal
 
 import SimpleITK as sitk
 import vtk
 from loguru import logger
 
 
-def read_image(filepath: Path | str):
+def read_image(filepath: Path | str) -> sitk.Image:
     reader = sitk.ImageFileReader()
     ftype = reader.GetImageIOFromFileName(filepath)
+    filepath = Path(filepath)
     if ftype == "":
         message = f"Unsupported file type: {filepath}"
         logger.error(message)
         raise ValueError(message)
     logger.info(f"{filepath} detected as {ftype}, importing...")
     image = sitk.ReadImage(filepath)
+    image["Short Name"] = filepath.stem
     return image
+
+
+def read_images(dirpath: Path | str, extension: Literal[".nii", ".nii.gz", ".nrrd", ".mdd"]) -> list[sitk.Image]:
+    dirpath = Path(dirpath)
+    images = []
+    for filepath in dirpath.glob(f"*{extension}"):
+        images.append(read_image(filepath))
+    return images
 
 
 def read_stl(filepath: Path | str) -> vtk.vtkPolyData:
