@@ -20,7 +20,7 @@ def test_image_roundtrip(data_files, tmp_path):
 
 
 def test_read_images(data_files):
-    disk.read_images(data_files, extension=".nii")
+    disk.read_images(data_files, filenames=["tibia.nii", "tibia_cartilage.nii", "femur.nii", "femur_cartilage.nii"])
 
 
 def test_read_bad_image(empty_file):

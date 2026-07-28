@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Literal
 
 import SimpleITK as sitk
 import vtk
@@ -20,11 +19,11 @@ def read_image(filepath: Path | str) -> sitk.Image:
     return image
 
 
-def read_images(dirpath: Path | str, extension: Literal[".nii", ".nii.gz", ".nrrd", ".mdd"]) -> list[sitk.Image]:
+def read_images(dirpath: Path | str, filenames: list[str]) -> list[sitk.Image]:
     dirpath = Path(dirpath)
     images = []
-    for filepath in dirpath.glob(f"*{extension}"):
-        images.append(read_image(filepath))
+    for file in filenames:
+        images.append(read_image(dirpath.joinpath(file)))
     return images
 
 
