@@ -36,6 +36,7 @@ def simple_anatomies() -> dict[str, sitk.Image]:
     for label, name in enumerate(("tibia", "tibia_cartilage", "femur", "femur_cartilage")):
         bbox = shape_stats.GetBoundingBox(label + 1)
         final[name] = sitk.Extract(final["knee"] == label + 1, bbox[3::], bbox[0:3])
+        final[name]["Short Name"] = name
     return final
 
 
