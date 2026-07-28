@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 import SimpleITK as sitk
 from loguru import logger
+from SimpleITK.utilities.vtk import sitk2vtk
+from vtkmodules.all import vtkImageData
 
 from .config import SegmentationProcessing
 
@@ -11,6 +13,12 @@ from .config import SegmentationProcessing
 class NamedLabelImage:
     lut: dict[str, int]
     image: sitk.Image
+
+
+@dataclass
+class NamedVTKImage:
+    lut: dict[str, int]
+    image: vtkImageData
 
 
 def create_canvas_for_volumes(volumes: list[sitk.Image], spacing: tuple[float, ...]) -> sitk.Image:
@@ -115,10 +123,15 @@ def process_segmentation(segmentation: NamedLabelImage, options: SegmentationPro
         except KeyError as e:
             logger.error(f"LUT is missing key: {e}")
     for label, image in sorted(processed_labels.items()):
-        logger.info(f"Adding label {label}")
         processed_image += image * label
         processed_image[processed_image > label] = label
 
     processed_labelmap = NamedLabelImage(image=processed_image, lut=segmentation.lut)
 
     return processed_labelmap
+
+
+def convert_segmentation_to_vtk(segmentation: NamedLabelImage) -> NamedVTKImage:
+    vtk_image = sitk2vtk(segmentation.image)
+    vtk_image.GetPointData().GetScalars().SetName("Label")
+    return NamedVTKImage(image=vtk_image, lut=segmentation.lut)
