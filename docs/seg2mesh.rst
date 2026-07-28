@@ -17,7 +17,7 @@ seg2mesh.vol
 seg2mesh.smesh
 --------------
 
-.. automodule:: seg2mesh.seg
+.. automodule:: seg2mesh.smesh
    :members:
    :show-inheritance:
    :undoc-members:
