@@ -51,8 +51,33 @@ class SegmentationPipeline(BaseModel, frozen=True):
 
 class SurfaceMeshPipeline(BaseModel, frozen=True):
     label_file: str | Path
+    """
+    Path to image file containing all anatomical labels
+    """
     output_directory: str | Path
+    """
+    Path for output files
+    """
     taubin_passband1: float = 0.001
+    """
+    Passband for the first Taubin smoothing operation
+    """
     taubin_iterations1: int = 40
+    """
+    Number of iterations for the first Taubin smoothing operation.
+    NOTE: If <= 0, no smoothing is performed.
+    """
+    remesh_edge_length: float = -1.0
+    """
+    Edge length for the remesh operation.
+    NOTE: If < 0, no remesh is performed.
+    """
     taubin_passband2: float = 0.01
+    """
+    Passband for the Taubin smoothing operation after remesh
+    """
     taubin_iterations2: int = 20
+    """
+    Number of iterations for the Taubin smoothing operation after remesh
+    NOTE: If <= 0 or if `remesh_edge_length` is < 0, no smoothing is performed.
+    """
