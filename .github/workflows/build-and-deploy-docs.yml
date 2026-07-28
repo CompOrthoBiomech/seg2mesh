@@ -1,5 +1,4 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: Build and Deploy Sphinx Docs
 
 on:
   # Runs on pushes targeting the default branch
@@ -28,7 +27,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -41,13 +40,13 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Build Sphinx Documentation
         run: uv run sphinx-build -b html docs docs/_build/html
-        
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
