@@ -22,6 +22,14 @@ class NamedVTKImage:
 
 
 def create_canvas_for_volumes(volumes: list[sitk.Image], spacing: tuple[float, ...]) -> sitk.Image:
+    """
+    Create a unified canvas image from a list of volumes and target spacing.
+
+    :param volumes: List of SimpleITK Image objects to resample.
+    :param spacing: The target spacing for the canvas.
+
+    :return: A SimpleITK Image representing the unified canvas.
+    """
     origin = np.zeros((len(volumes), 3))
     corner = np.zeros((len(volumes), 3))
     for i, vol in enumerate(volumes):
@@ -41,6 +49,14 @@ def create_canvas_for_volumes(volumes: list[sitk.Image], spacing: tuple[float, .
 
 
 def resample_volumes_to_canvas(volumes: list[sitk.Image], canvas: sitk.Image) -> NamedLabelImage:
+    """
+    Resample image volumes to a unified canvas. `create_canvas_for_volumes()` can be used to create a suitable canvas.
+
+    :param volumes: List of SimpleITK Image objects to resample.
+    :param canvas: The target canvas to resample to.
+
+    :return: A NamedLabelImage with the resampled volumes and LUT mapping label names to integer values.
+    """
     composite = NamedLabelImage(image=canvas, lut={})
     lut = {}
     for i, v in enumerate(volumes):
@@ -65,6 +81,15 @@ def resample_volumes_to_canvas(volumes: list[sitk.Image], canvas: sitk.Image) ->
 
 
 def make_contiguous(label1: sitk.Image, label2: sitk.Image, closing_radius: tuple[int, int, int]) -> tuple[sitk.Image, sitk.Image]:
+    """
+    Adjust `label1` and `label2` to be contiguous. `label1` takes precedence over `label2`
+
+    :param label1: The first label image.
+    :param label2: The second label image.
+    :param closing_radius: The radius (in voxels) for dilation and morphological closing operations.
+
+    :return: A tuple of the adjusted `label1` and `label2` images.
+    """
     labelstats = sitk.LabelShapeStatisticsImageFilter()
     labelstats.Execute(label1)
     bbox = labelstats.GetBoundingBox(1)
@@ -86,6 +111,14 @@ def make_contiguous(label1: sitk.Image, label2: sitk.Image, closing_radius: tupl
 
 
 def process_segmentation(segmentation: NamedLabelImage, options: SegmentationProcessing) -> NamedLabelImage:
+    """
+    Apply a processing workflow to the segmentation.
+
+    :param segmentation: The input segmentation as a NamedLabelImage.
+    :param options: The processing options as a SegmentationProcessing object.
+
+    :return: The processed segmentation as a NamedLabelImage.
+    """
     processed_image = sitk.Image(segmentation.image.GetSize(), segmentation.image.GetPixelID())
     processed_image.CopyInformation(segmentation.image)
 
