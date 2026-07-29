@@ -8,6 +8,8 @@ from vtkmodules.all import vtkImageData
 
 from .config import SegmentationProcessing
 
+IDENTITY_TRANSFORM = sitk.Transform()
+
 
 @dataclass
 class NamedLabelImage:
@@ -78,6 +80,22 @@ def resample_volumes_to_canvas(volumes: list[sitk.Image], canvas: sitk.Image) ->
         composite.image[composite.image > (i + 1)] = i + 1
     composite.lut = lut
     return composite
+
+
+def resample_label_image(
+    image: sitk.Image, spacing: tuple[float, float, float], transform: sitk.Transform = IDENTITY_TRANSFORM
+) -> sitk.Image:
+    output_size = [int(np.ceil(orig_s / s * n)) for s, orig_s, n in zip(spacing, image.GetSpacing(), image.GetSize())]
+    return sitk.Resample(
+        image,
+        output_size,
+        transform=transform,
+        outputOrigin=image.GetOrigin(),
+        outputSpacing=spacing,
+        outputDirection=image.GetDirection(),
+        interpolator=sitk.sitkLabelLinear,
+        defaultPixelValue=0,
+    )
 
 
 def make_contiguous(label1: sitk.Image, label2: sitk.Image, closing_radius: tuple[int, int, int]) -> tuple[sitk.Image, sitk.Image]:
