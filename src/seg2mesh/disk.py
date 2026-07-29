@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import SimpleITK as sitk
@@ -30,7 +31,7 @@ def read_images(dirpath: Path | str, filenames: list[str]) -> list[sitk.Image]:
 def read_stl(filepath: Path | str) -> vtk.vtkPolyData:
     reader = vtk.vtkSTLReader()
     reader.SetFileName(Path(filepath).as_posix())
-    logger.info(f"Reading STL file: {filepath}")
+    logger.info(f"Reading STL file from {filepath}")
     reader.Update()
     return reader.GetOutput()
 
@@ -38,7 +39,7 @@ def read_stl(filepath: Path | str) -> vtk.vtkPolyData:
 def read_ply(filepath: Path | str) -> vtk.vtkPolyData:
     reader = vtk.vtkPLYReader()
     reader.SetFileName(Path(filepath).as_posix())
-    logger.info(f"Reading PLY file: {filepath}")
+    logger.info(f"Reading PLY file from {filepath}")
     reader.Update()
     return reader.GetOutput()
 
@@ -46,7 +47,7 @@ def read_ply(filepath: Path | str) -> vtk.vtkPolyData:
 def read_obj(filepath: Path | str) -> vtk.vtkPolyData:
     reader = vtk.vtkOBJReader()
     reader.SetFileName(Path(filepath).as_posix())
-    logger.info(f"Reading OBJ file: {filepath}")
+    logger.info(f"Reading OBJ file from {filepath}")
     reader.Update()
     return reader.GetOutput()
 
@@ -54,7 +55,7 @@ def read_obj(filepath: Path | str) -> vtk.vtkPolyData:
 def read_vtp(filepath: Path | str) -> vtk.vtkPolyData:
     reader = vtk.vtkXMLPolyDataReader()
     reader.SetFileName(Path(filepath).as_posix())
-    logger.info(f"Reading VTP file: {filepath}")
+    logger.info(f"Reading VTP file from {filepath}")
     reader.Update()
     return reader.GetOutput()
 
@@ -64,43 +65,68 @@ def write_image(data: sitk.Image, filepath: Path | str) -> None:
     sitk.WriteImage(data, filepath)
 
 
+def read_lut(filepath: Path | str) -> dict[str, int]:
+    filepath = Path(filepath)
+    logger.info(f"Reading LUT from {filepath}")
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+
+def write_lut(lut: dict[str, int], filepath: Path | str) -> None:
+    logger.info(f"Writing LUT to {filepath}")
+    with open(filepath, "w") as f:
+        f.write(json.dumps(lut, indent=4))
+
+
 def write_stl(data: vtk.vtkPolyData, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing STL file to {filepath}")
     writer = vtk.vtkSTLWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
 
 
 def write_ply(data: vtk.vtkPolyData, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing PLY file to {filepath}")
     writer = vtk.vtkPLYWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
 
 
 def write_obj(data: vtk.vtkPolyData, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing OBJ file to {filepath}")
     writer = vtk.vtkOBJWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
 
 
 def write_vtp(data: vtk.vtkPolyData, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing VTP file to {filepath}")
     writer = vtk.vtkXMLPolyDataWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
 
 
 def write_vtu(data: vtk.vtkUnstructuredGrid, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing VTU file to {filepath}")
     writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
 
 
 def write_vti(data: vtk.vtkImageData, filepath: Path | str) -> None:
+    filepath = Path(filepath)
+    logger.info(f"Writing VTI file to {filepath}")
     writer = vtk.vtkXMLImageDataWriter()
-    writer.SetFileName(Path(filepath).as_posix())
+    writer.SetFileName(filepath.as_posix())
     writer.SetInputData(data)
     writer.Update()
