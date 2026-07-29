@@ -24,3 +24,8 @@ def test_process_segmentation(segmentation):
     processed = vol.process_segmentation(segmentation, SegmentationProcessing())
     assert processed.image.GetSize() == segmentation.image.GetSize()
     vol.convert_segmentation_to_vtk(processed)
+
+
+def test_resample_label_image(simple_volumes):
+    resampled = vol.resample_label_image(simple_volumes["knee"], spacing=(0.5, 0.5, 0.5))
+    assert resampled.GetSpacing() == pytest.approx((0.5, 0.5, 0.5))
