@@ -6,9 +6,11 @@ from vtkmodules.all import (
     vtkDataObject,
     vtkDataSetAttributes,
     vtkDiscreteFlyingEdges3D,
-    vtkDistancePolyDataFilter,
     vtkFillHolesFilter,
+    vtkFloatArray,
     vtkGeometryFilter,
+    vtkHausdorffDistancePointSetFilter,
+    vtkImplicitPolyDataDistance,
     vtkPolyData,
     vtkPolyDataNormals,
     vtkThreshold,
@@ -20,12 +22,27 @@ from .vol import NamedVTKImage
 
 
 def evaluate_polydata_distance(poly1: vtkPolyData, poly2: vtkPolyData):
-    distance_filter = vtkDistancePolyDataFilter()
-    distance_filter.SetInputData(0, poly1)
-    distance_filter.SetInputData(1, poly2)
-    distance_filter.SignedDistanceOff()
-    distance_filter.Update()
-    return distance_filter.GetOutput()
+    distance_filter = vtkImplicitPolyDataDistance()
+    distances = vtkFloatArray()
+    distances.SetName("Signed Distances")
+    distances.SetNumberOfValues(poly2.GetNumberOfPoints())
+    distances.SetNumberOfComponents(1)
+    distance_filter.SetInput(poly1)
+    for i in range(poly2.GetNumberOfPoints()):
+        point = poly2.GetPoint(i)
+        distances.InsertValue(i, distance_filter.EvaluateFunction(*point))
+    poly2.GetPointData().AddArray(distances)
+
+    return poly2
+
+
+def evaluate_hausdorff_distance(poly1: vtkPolyData, poly2: vtkPolyData) -> vtkPolyData:
+    distance = vtkHausdorffDistancePointSetFilter()
+    distance.SetInputData(0, poly1)
+    distance.SetInputData(1, poly2)
+    distance.SetTargetDistanceMethodToPointToCell()
+    distance.Update()
+    return distance.GetOutput(1)
 
 
 def taubin_smooth(poly: vtkPolyData, iterations: int = 40, passband: float = 0.01) -> vtkPolyData:
@@ -44,12 +61,9 @@ def taubin_smooth(poly: vtkPolyData, iterations: int = 40, passband: float = 0.0
     smooth.BoundarySmoothingOff()
     smooth.FeatureEdgeSmoothingOff()
     smooth.NonManifoldSmoothingOn()
-    smooth.SetGenerateErrorScalars(1)
     smooth.NormalizeCoordinatesOn()
     smooth.Update()
-    mesh = smooth.GetOutput()
-    mesh.GetPointData().GetScalars().SetName("Offset")
-    return mesh
+    return smooth.GetOutput()
 
 
 def _grid_to_poly(grid: vtkUnstructuredGrid) -> vtkPolyData:
