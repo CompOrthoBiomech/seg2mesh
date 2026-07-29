@@ -96,6 +96,7 @@ def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal
 
 
 def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: float) -> dict[str, float]:
+    logger.info("Evaluating classification scores")
     bbox1 = np.array(poly1.GetBounds())
     bbox2 = np.array(poly2.GetBounds())
     origin = np.min([bbox1[0::2], bbox2[0::2]], axis=0)
@@ -108,11 +109,14 @@ def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: 
     metrics["Dice Coefficient"] = f1_score(vol2, vol1)
     metrics["Intersection over Union"] = jaccard_score(vol2, vol1)
     metrics["Accuracy"] = accuracy_score(vol2, vol1)
+    for k, v in metrics.items():
+        logger.info(f"...{k}: {v}")
 
     return metrics
 
 
 def evaluate_distance_metrics(poly1: vtkPolyData, poly2: vtkPolyData) -> tuple[vtkPolyData, dict[str, float]]:
+    logger.info("Evaluating Distance Metrics")
     distance = vtkHausdorffDistancePointSetFilter()
     distance.SetInputData(0, poly1)
     distance.SetInputData(1, poly2)
@@ -141,6 +145,8 @@ def evaluate_distance_metrics(poly1: vtkPolyData, poly2: vtkPolyData) -> tuple[v
         "Mean Symmetric Surface Distance": mssd,
         "Root Mean Square Distance": rmse,
     }
+    for k, v in metrics.items():
+        logger.info(f"...{k}: {v}")
 
     return distance2, metrics
 
