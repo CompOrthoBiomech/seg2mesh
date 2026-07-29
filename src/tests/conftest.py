@@ -3,6 +3,8 @@ import logging
 import pytest
 import SimpleITK as sitk
 from loguru import logger
+from SimpleITK.utilities.vtk import sitk2vtk
+from vtkmodules.all import vtkDiscreteFlyingEdges3D, vtkPolyData, vtkXMLPolyDataWriter
 
 
 class PropagateHandler(logging.Handler):
@@ -19,7 +21,7 @@ def setup_loguru_pytest_integration():
 
 
 @pytest.fixture(scope="session")
-def simple_anatomies() -> dict[str, sitk.Image]:
+def simple_volumes() -> dict[str, sitk.Image]:
     final = {}
     gaussian = sitk.GaussianSource(sitk.sitkUInt8, size=(50, 50, 50), mean=(25, 25, 25), sigma=(8, 8, 8))
     anatomy = []
@@ -41,12 +43,32 @@ def simple_anatomies() -> dict[str, sitk.Image]:
 
 
 @pytest.fixture(scope="session")
-def data_files(tmp_path_factory, simple_anatomies):
+def simple_meshes(simple_volumes) -> dict[str, vtkPolyData]:
+    meshes = {}
+    for name, vol in simple_volumes.items():
+        vtk_image = sitk2vtk(vol)
+        iso = vtkDiscreteFlyingEdges3D()
+        iso.SetInputData(vtk_image)
+        iso.SetNumberOfContours(1)
+        iso.SetValue(0, 1)
+        iso.Update()
+        meshes[name] = iso.GetOutput()
+    return meshes
+
+
+@pytest.fixture(scope="session")
+def data_files(tmp_path_factory, simple_volumes, simple_meshes):
     file_dir = tmp_path_factory.mktemp("data")
     for ftype in (".nii", ".mhd", ".nrrd"):
-        sitk.WriteImage(simple_anatomies["knee"], file_dir / f"knee{ftype}")
-    for name, anatomy in simple_anatomies.items():
+        sitk.WriteImage(simple_volumes["knee"], file_dir / f"knee{ftype}")
+    for name, anatomy in simple_volumes.items():
         if name == "knee":
             continue
-        sitk.WriteImage(anatomy, file_dir / f"{name}.nii")
+        sitk.WriteImage(anatomy, file_dir / f"{name}.nrrd")
+    for name, mesh in simple_meshes.items():
+        writer = vtkXMLPolyDataWriter()
+        writer.SetFileName(file_dir / f"{name}.vtp")
+        writer.SetInputData(mesh)
+        writer.Write()
+
     return file_dir
