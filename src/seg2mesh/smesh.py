@@ -1,7 +1,13 @@
+from typing import Literal
+
+import numpy as np
+import numpy.typing as npt
 from loguru import logger
 from pyacvd import Clustering
 from pyvista import PolyData
+from sklearn.metrics import accuracy_score, f1_score, jaccard_score
 from vtkmodules.all import (
+    VTK_CHAR,
     vtkCleanPolyData,
     vtkDataObject,
     vtkDataSetAttributes,
@@ -10,13 +16,18 @@ from vtkmodules.all import (
     vtkFloatArray,
     vtkGeometryFilter,
     vtkHausdorffDistancePointSetFilter,
+    vtkImageData,
+    vtkImageMathematics,
+    vtkImageStencil,
     vtkImplicitPolyDataDistance,
     vtkPolyData,
     vtkPolyDataNormals,
+    vtkPolyDataToImageStencil,
     vtkThreshold,
     vtkUnstructuredGrid,
     vtkWindowedSincPolyDataFilter,
 )
+from vtkmodules.util.numpy_support import vtk_to_numpy
 
 from .vol import NamedVTKImage
 
@@ -36,13 +47,102 @@ def evaluate_polydata_distance(poly1: vtkPolyData, poly2: vtkPolyData):
     return poly2
 
 
-def evaluate_hausdorff_distance(poly1: vtkPolyData, poly2: vtkPolyData) -> vtkPolyData:
+def voxelize_mesh(
+    mesh: vtkPolyData, voxel_edge: float, origin: npt.NDArray, size: npt.NDArray, max_voxels: int = 1_000_000_000
+) -> vtkImageData:
+    total_voxels = int(np.prod(size))
+    logger.info(f"...Voxelizing PolyData with {voxel_edge=} for {total_voxels=}")
+    if total_voxels > max_voxels:
+        message = f"......To achieve {voxel_edge=} requires {total_voxels} voxels, which is greater than {max_voxels=}"
+        logger.error(message)
+        raise RuntimeError(message)
+
+    image = vtkImageData()
+    image.SetSpacing([voxel_edge] * 3)
+    image.SetDimensions(*size)
+    image.SetExtent([0, size[0] - 1, 0, size[1] - 1, 0, size[2] - 1])
+    image.SetOrigin(*origin)
+    image.AllocateScalars(VTK_CHAR, 1)
+    image.GetPointData().GetScalars().Fill(1)
+    image.Modified()
+
+    poly2stencil = vtkPolyDataToImageStencil()
+    poly2stencil.SetInputData(mesh)
+    poly2stencil.SetOutputOrigin(image.GetOrigin())
+    poly2stencil.SetOutputSpacing(image.GetSpacing())
+    poly2stencil.SetOutputWholeExtent(image.GetExtent())
+    poly2stencil.Update()
+
+    stencil = vtkImageStencil()
+    stencil.SetInputData(image)
+    stencil.SetStencilConnection(poly2stencil.GetOutputPort())
+    stencil.ReverseStencilOff()
+    stencil.SetBackgroundValue(0)
+    stencil.Update()
+
+    return stencil.GetOutput()
+
+
+def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal["Union", "Intersection"]) -> vtkImageData:
+    boolean = vtkImageMathematics()
+    boolean.SetInput1Data(image1)
+    boolean.SetInput2Data(image2)
+    if operation == "Union":
+        boolean.SetOperationToMax()
+    elif operation == "Intersection":
+        boolean.SetOperationToMultiply()
+    boolean.Update()
+    return boolean.GetOutput()
+
+
+def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: float) -> dict[str, float]:
+    bbox1 = np.array(poly1.GetBounds())
+    bbox2 = np.array(poly2.GetBounds())
+    origin = np.min([bbox1[0::2], bbox2[0::2]], axis=0)
+    corner = np.max([bbox1[1::2], bbox2[1::2]], axis=0)
+    size = np.ceil((corner - origin) / voxel_edge).astype(int)
+    vol1 = vtk_to_numpy(voxelize_mesh(poly1, voxel_edge, origin, size).GetPointData().GetScalars()).ravel()
+    vol2 = vtk_to_numpy(voxelize_mesh(poly2, voxel_edge, origin, size).GetPointData().GetScalars()).ravel()
+
+    metrics = {}
+    metrics["Dice Coefficient"] = f1_score(vol2, vol1)
+    metrics["Intersection over Union"] = jaccard_score(vol2, vol1)
+    metrics["Accuracy"] = accuracy_score(vol2, vol1)
+
+    return metrics
+
+
+def evaluate_distance_metrics(poly1: vtkPolyData, poly2: vtkPolyData) -> tuple[vtkPolyData, dict[str, float]]:
     distance = vtkHausdorffDistancePointSetFilter()
     distance.SetInputData(0, poly1)
     distance.SetInputData(1, poly2)
     distance.SetTargetDistanceMethodToPointToCell()
     distance.Update()
-    return distance.GetOutput(1)
+
+    distance1 = distance.GetOutput(0)
+    distance2 = distance.GetOutput(1)
+
+    total_points = distance2.GetNumberOfPoints() + distance2.GetNumberOfPoints()
+    distance1_array = vtk_to_numpy(distance1.GetPointData().GetArray("Distance"))
+    distance2_array = vtk_to_numpy(distance2.GetPointData().GetArray("Distance"))
+    mssd = (np.sum(distance1_array) + np.sum(distance2_array)) / total_points
+    mssd_array = vtkFloatArray()
+    mssd_array.InsertNextValue(mssd)
+    mssd_array.SetName("Mean Symmetric Surface Distance")
+    distance2.GetFieldData().AddArray(mssd_array)
+    rmse = np.sqrt((np.sum(distance1_array**2) + np.sum(distance2_array**2)) / total_points)
+    rmse_array = vtkFloatArray()
+    rmse_array.InsertNextValue(rmse)
+    rmse_array.SetName("Root Mean Square Distance")
+    distance2.GetFieldData().AddArray(rmse_array)
+
+    metrics = {
+        "Hausdorff Distance": distance2.GetFieldData().GetArray("HausdorffDistance").GetValue(0),
+        "Mean Symmetric Surface Distance": mssd,
+        "Root Mean Square Distance": rmse,
+    }
+
+    return distance2, metrics
 
 
 def taubin_smooth(poly: vtkPolyData, iterations: int = 40, passband: float = 0.01) -> vtkPolyData:
