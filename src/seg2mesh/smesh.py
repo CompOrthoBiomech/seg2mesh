@@ -50,6 +50,16 @@ def evaluate_polydata_distance(poly1: vtkPolyData, poly2: vtkPolyData):
 def voxelize_mesh(
     mesh: vtkPolyData, voxel_edge: float, origin: npt.NDArray, size: npt.NDArray, max_voxels: int = 1_000_000_000
 ) -> vtkImageData:
+    """
+    Voxelizes a mesh into a vtkImageData volume using the utilizes a vtkPolyDataToImageStencil filter.
+
+    :param voxel_edge: The edge length of the voxels.
+    :param origin: The origin of the vtkImageData volume.
+    :param size: The size ([x, y, z] in voxels) of the vtkImageData volume.
+    :param max_voxels: The maximum number of voxels allowed, to avoid excessive memory usage.
+
+    :return: The vtkImageData volume.
+    """
     total_voxels = int(np.prod(size))
     logger.info(f"...Voxelizing PolyData with {voxel_edge=} for {total_voxels=}")
     if total_voxels > max_voxels:
@@ -96,6 +106,15 @@ def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal
 
 
 def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: float) -> dict[str, float]:
+    """
+    Calculate classification scores based on voxelized volumes.
+
+    :param poly1: The current mesh to compare.
+    :param poly2: The reference mesh to compare against.
+    :param voxel_edge: The edge length of the voxels used for voxelization.
+
+    :returns: A dictionary of volume metrics including Dice Coefficient, Intersection over Union, and Accuracy.
+    """
     logger.info("Evaluating classification scores")
     bbox1 = np.array(poly1.GetBounds())
     bbox2 = np.array(poly2.GetBounds())
@@ -116,6 +135,17 @@ def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: 
 
 
 def evaluate_distance_metrics(poly1: vtkPolyData, poly2: vtkPolyData) -> tuple[vtkPolyData, dict[str, float]]:
+    """
+    Calculates distance error metrics including Hausdorff distance, Mean Symmetric Surface Distance, and Root Mean Square Distance.
+
+    :param poly1: The current mesh to compare.
+    :param poly2: The reference mesh to compare against.
+
+    :returns: A tuple containing PolyData with poly1 topology with shortest (point-cell calculated) distances from poly1 to poly2 stored on
+    vertices and metrics stored as FieldData and a dictionary of metrics. NOTE: The vertex distances are only poly1 to poly2 distances, but metrics
+    are calculated using both poly1 to poly2 and poly2 to poly1 distances.
+
+    """
     logger.info("Evaluating Distance Metrics")
     distance = vtkHausdorffDistancePointSetFilter()
     distance.SetInputData(0, poly1)
