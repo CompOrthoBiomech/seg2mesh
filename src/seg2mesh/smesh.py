@@ -47,6 +47,24 @@ def evaluate_polydata_distance(poly1: vtkPolyData, poly2: vtkPolyData):
     return poly2
 
 
+def get_compatible_origin_and_size(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: float) -> tuple[npt.NDArray, npt.NDArray]:
+    """
+    Given two vtkPolyData objects, returns the compatible origin and size to create corresponding voxelizations.
+
+    :param poly1: The first vtkPolyData object.
+    :param poly2: The second vtkPolyData object.
+    :param voxel_edge: The edge length of the voxels.
+
+    :returns: The compatible origin and size as a tuple of numpy arrays.
+    """
+    bbox1 = np.array(poly1.GetBounds())
+    bbox2 = np.array(poly2.GetBounds())
+    origin = np.min([bbox1[0::2], bbox2[0::2]], axis=0)
+    corner = np.max([bbox1[1::2], bbox2[1::2]], axis=0)
+    size = np.ceil((corner - origin) / voxel_edge).astype(int)
+    return origin, size
+
+
 def voxelize_mesh(
     mesh: vtkPolyData, voxel_edge: float, origin: npt.NDArray, size: npt.NDArray, max_voxels: int = 1_000_000_000
 ) -> vtkImageData:
@@ -93,7 +111,7 @@ def voxelize_mesh(
     return stencil.GetOutput()
 
 
-def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal["Union", "Intersection"]) -> vtkImageData:
+def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal["Union", "Intersection", "Difference"]) -> vtkImageData:
     boolean = vtkImageMathematics()
     boolean.SetInput1Data(image1)
     boolean.SetInput2Data(image2)
@@ -101,6 +119,8 @@ def image_boolean(image1: vtkImageData, image2: vtkImageData, operation: Literal
         boolean.SetOperationToMax()
     elif operation == "Intersection":
         boolean.SetOperationToMultiply()
+    elif operation == "Difference":
+        boolean.SetOperationToMin()
     boolean.Update()
     return boolean.GetOutput()
 
@@ -116,11 +136,7 @@ def evaluate_volume_metrics(poly1: vtkPolyData, poly2: vtkPolyData, voxel_edge: 
     :returns: A dictionary of volume metrics including Dice Coefficient, Intersection over Union, and Accuracy.
     """
     logger.info("Evaluating classification scores")
-    bbox1 = np.array(poly1.GetBounds())
-    bbox2 = np.array(poly2.GetBounds())
-    origin = np.min([bbox1[0::2], bbox2[0::2]], axis=0)
-    corner = np.max([bbox1[1::2], bbox2[1::2]], axis=0)
-    size = np.ceil((corner - origin) / voxel_edge).astype(int)
+    origin, size = get_compatible_origin_and_size(poly1, poly2, voxel_edge)
     vol1 = vtk_to_numpy(voxelize_mesh(poly1, voxel_edge, origin, size).GetPointData().GetScalars()).ravel()
     vol2 = vtk_to_numpy(voxelize_mesh(poly2, voxel_edge, origin, size).GetPointData().GetScalars()).ravel()
 
