@@ -85,6 +85,16 @@ def resample_volumes_to_canvas(volumes: list[sitk.Image], canvas: sitk.Image) ->
 def resample_label_image(
     image: sitk.Image, spacing: tuple[float, float, float], transform: sitk.Transform = IDENTITY_TRANSFORM
 ) -> sitk.Image:
+    """
+    Resamples a label image to the specified spacing and SimpleITK Transform (default is identity).
+    The sitkLabelLinear interpolator is used to better preserve labels during resampling.
+
+    :param image: The input label image to resample.
+    :param spacing: The desired spacing for the output image.
+    :param transform: The transform to apply during resampling.
+
+    :returns: The resampled label image.
+    """
     output_size = [int(np.ceil(orig_s / s * n)) for s, orig_s, n in zip(spacing, image.GetSpacing(), image.GetSize())]
     return sitk.Resample(
         image,
@@ -96,6 +106,21 @@ def resample_label_image(
         interpolator=sitk.sitkLabelLinear,
         defaultPixelValue=0,
     )
+
+
+def remove_islands(image: sitk.Image) -> sitk.Image:
+    """
+    Remove islands (by keeping only the largest connected component) in a binary image.
+
+    :param image: The binary image to process.
+    :return: The image with islands removed.
+    """
+    components = sitk.ConnectedComponentImageFilter()
+    components.SetFullyConnected(False)
+    connected = components.Execute(image)
+    sorted_labels = sitk.RelabelComponent(connected, sortByObjectSize=True)
+    sitk.WriteImage(sorted_labels, "sorted_labels.nrrd")
+    return sorted_labels == 1
 
 
 def make_contiguous(label1: sitk.Image, label2: sitk.Image, closing_radius: tuple[int, int, int]) -> tuple[sitk.Image, sitk.Image]:
@@ -153,14 +178,17 @@ def process_segmentation(segmentation: NamedLabelImage, options: SegmentationPro
             constant=0,
         )
         roi = sitk.BinaryThreshold(roi, lowerThreshold=label, upperThreshold=label, insideValue=1, outsideValue=0)
+        roi = remove_islands(roi)
+        if options.spur_removal_length > 0:
+            roi = sitk.BinaryPruning(roi, iteration=options.spur_removal_length)
 
         if options.close:
             roi = sitk.GrayscaleMorphologicalClosing(roi, options.closing_radius)
-        roi = sitk.BinaryFillhole(roi)
-        if options.median_filter:
-            roi = sitk.BinaryMedian(roi, options.median_filter_radius)
-        if options.open:
+
+        if name in options.open_list:
             roi = sitk.GrayscaleMorphologicalOpening(roi, options.opening_radius)
+
+        roi = sitk.BinaryFillhole(roi)
         roi = sitk.Resample(roi, processed_image, interpolator=sitk.sitkLabelLinear)
         processed_labels[label] = roi
     for name1, name2 in options.make_contiguous:
@@ -183,6 +211,13 @@ def process_segmentation(segmentation: NamedLabelImage, options: SegmentationPro
 
 
 def convert_segmentation_to_vtk(segmentation: NamedLabelImage) -> NamedVTKImage:
+    """
+    Converts a NamedLabelImage  to a NamedVTKImage.
+
+    :param segmentation: The NamedLabelImage image to convert.
+
+    :returns: A NamedVTKImage with converted image data and same lookup table.
+    """
     vtk_image = sitk2vtk(segmentation.image)
     vtk_image.GetPointData().GetScalars().SetName("Label")
     return NamedVTKImage(image=vtk_image, lut=segmentation.lut)
