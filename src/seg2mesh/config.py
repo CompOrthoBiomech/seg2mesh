@@ -19,17 +19,14 @@ class SegmentationProcessing(BaseModel, frozen=True):
     closing_radius: tuple[int, int, int] = (3, 3, 3)
     """The radius of the closing operation"""
 
-    median_filter: bool = True
-    """Median filter the segmented labels"""
-
-    median_filter_radius: tuple[int, int, int] = (1, 1, 1)
-    """The radius of the median filter"""
-
-    open: bool = False
-    """Perform morphological opening on segmented labels"""
+    open_list: list[str] = Field(default_factory=list)
+    """A list of label 'Short Name' to perform morphological opening on"""
 
     opening_radius: tuple[int, int, int] = (1, 1, 1)
     """The radius of the opening operation"""
+
+    spur_removal_length: int = 10
+    """The length of spurs (in voxels) to remove"""
 
     make_contiguous: list[tuple[str, str]] = Field(default_factory=list)
     """A list of tuples specifying the labels to make contiguous. First element in tuple will overwrite the second element."""

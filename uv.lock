@@ -21,6 +21,15 @@ wheels = [
 ]
 
 [[package]]
+name = "attrs"
+version = "26.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/8e/82a0fe20a541c03148528be8cac2408564a6c9a0cc7e9171802bc1d26985/attrs-26.1.0.tar.gz", hash = "sha256:d03ceb89cb322a8fd706d4fb91940737b6642aa36998fe130a9bc96c985eff32", size = 952055, upload-time = "2026-03-19T14:22:25.026Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl", hash = "sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309", size = 67548, upload-time = "2026-03-19T14:22:23.645Z" },
+]
+
+[[package]]
 name = "autodoc-pydantic"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -125,6 +134,30 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb79008e7522a75244477d2838f38cbb722248dabc2a8/cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c", size = 7615, upload-time = "2023-10-07T05:32:18.335Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30", size = 8321, upload-time = "2023-10-07T05:32:16.783Z" },
+]
+
+[[package]]
+name = "cyclopts"
+version = "4.22.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "docstring-parser" },
+    { name = "rich" },
+    { name = "rich-rst" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/13/55/119aaed705f1a05cf0fde86b921f837cafd049136013f381ed1014f381d9/cyclopts-4.22.3.tar.gz", hash = "sha256:6c366f32604c23db83819a0411c0e30b398a6fcbc718191ea39f7119ce725d8e", size = 194617, upload-time = "2026-07-30T16:36:23.671Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/75/2013521356f5e85a4b03ddbf5c14425be288512d431a4fa0e1e9b51c78ad/cyclopts-4.22.3-py3-none-any.whl", hash = "sha256:e03b9676c0f7495a9a7d51179222133938538984184b3a2ac50f26aab35b6970", size = 234005, upload-time = "2026-07-30T16:36:21.8Z" },
+]
+
+[[package]]
+name = "docstring-parser"
+version = "0.18.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e0/4d/f332313098c1de1b2d2ff91cf2674415cc7cddab2ca1b01ae29774bd5fdf/docstring_parser-0.18.0.tar.gz", hash = "sha256:292510982205c12b1248696f44959db3cdd1740237a968ea1e2e7a900eeb2015", size = 29341, upload-time = "2026-04-14T04:09:19.867Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl", hash = "sha256:b3fcbed555c47d8479be0796ef7e19c2670d428d72e96da63f3a40122860374b", size = 22484, upload-time = "2026-04-14T04:09:18.638Z" },
 ]
 
 [[package]]
@@ -356,6 +389,29 @@ wheels = [
 ]
 
 [[package]]
+name = "mmgpy"
+version = "0.16.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "patchelf", marker = "sys_platform == 'linux'" },
+    { name = "rich" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/61/e7ab0a17852b4776e70ab31bc4c22d32c9132ad79495b08f077943906175/mmgpy-0.16.2.tar.gz", hash = "sha256:82dac529079a5e85fa1e6ed19bb82ac825d96f413559de3399870ae2e37b8898", size = 19568105, upload-time = "2026-05-23T13:20:41.941Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/23/e5/e4d104e0b10642a425012d56378d846ce0a44662af3afa6c550bfcea9349/mmgpy-0.16.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:3212417c64c0d6cb2c75bc2ed475c6e82eb56477dc552e1ce0d8c4d7045376f7", size = 7475174, upload-time = "2026-05-23T13:20:17.379Z" },
+    { url = "https://files.pythonhosted.org/packages/be/66/09cdb9e87fa2cc75f947ec388f43aa0b41a8d7d3032b26965621804d1679/mmgpy-0.16.2-cp313-cp313-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:3adae8738eecee56f891b6f249102d3381ae4bc177c8c316292e95bf0f20f577", size = 9454914, upload-time = "2026-05-23T13:20:19.845Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/51/ba56c47450e0555db3d56fe13aa57561863ccf0315920d90cadb564e0006/mmgpy-0.16.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6b0b8c61e615dd4c944b0816c8d5484da577ddf998af8294851e6f1d4946be91", size = 9680967, upload-time = "2026-05-23T13:20:22.173Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/2d/ddd689384b48a9c7973fa8d6b111756b2995fdbb9149ec5cad7bab715592/mmgpy-0.16.2-cp313-cp313-win_amd64.whl", hash = "sha256:719731bbef63e6df21fe9b809522a94112f5eefe2677fa78851a353754a826fc", size = 4755981, upload-time = "2026-05-23T13:20:24.479Z" },
+]
+
+[package.optional-dependencies]
+pyvista = [
+    { name = "pyvista" },
+]
+
+[[package]]
 name = "narwhals"
 version = "2.24.0"
 source = { registry = "https://pypi.org/simple" }
@@ -401,6 +457,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727, upload-time = "2025-04-19T11:48:59.673Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469, upload-time = "2025-04-19T11:48:57.875Z" },
+]
+
+[[package]]
+name = "patchelf"
+version = "0.17.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2c/a3/fdd3fa938c864aa2f11dd0b7f08befeda983d2dcdee44da493c6977a653f/patchelf-0.17.2.4.tar.gz", hash = "sha256:970ee5cd8af33e5ea2099510b2f9013fa1b8d5cd763bf3fd3961281c18101a09", size = 149629, upload-time = "2025-07-23T21:16:32.071Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/6d/2e9f5483cdb352fab36b8076667b062b2d79cb09d2e3fd09b6fca5771cb6/patchelf-0.17.2.4-py3-none-manylinux1_i686.manylinux_2_5_i686.musllinux_1_1_i686.whl", hash = "sha256:09fd848d625a165fc7b7e07745508c24077129b019c4415a882938781d43adf8", size = 547318, upload-time = "2025-07-23T21:16:22.135Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/19/f7821ef31aab01fa7dc8ebe697ece88ec4f7a0fdd3155dab2dfee4b00e5c/patchelf-0.17.2.4-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:d9b35ebfada70c02679ad036407d9724ffe1255122ba4ac5e4be5868618a5689", size = 482846, upload-time = "2025-07-23T21:16:23.73Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/50/107fea848ecfd851d473b079cab79107487d72c4c3cdb25b9d2603a24ca2/patchelf-0.17.2.4-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:2931a1b5b85f3549661898af7bf746afbda7903c7c9a967cfc998a3563f84fad", size = 477811, upload-time = "2025-07-23T21:16:25.145Z" },
+    { url = "https://files.pythonhosted.org/packages/89/a9/a9a2103e159fd65bffbc21ecc5c8c36e44eb34fe53b4ef85fb6d08c2a635/patchelf-0.17.2.4-py3-none-manylinux2014_armv7l.manylinux_2_17_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:ae44cb3c857d50f54b99e5697aa978726ada33a8a6129d4b8b7ffd28b996652d", size = 431226, upload-time = "2025-07-23T21:16:26.765Z" },
+    { url = "https://files.pythonhosted.org/packages/87/93/897d612f6df7cfd987bdf668425127efeff8d8e4ad8bfbab1c69d2a0d861/patchelf-0.17.2.4-py3-none-manylinux2014_ppc64le.manylinux_2_17_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:680a266a70f60a7a4f4c448482c5bdba80cc8e6bb155a49dcc24238ba49927b0", size = 540276, upload-time = "2025-07-23T21:16:27.983Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/b8/2b92d11533482bac9ee989081d6880845287751b5f528adbd6bb27667fbd/patchelf-0.17.2.4-py3-none-manylinux2014_s390x.manylinux_2_17_s390x.musllinux_1_1_s390x.whl", hash = "sha256:d842b51f0401460f3b1f3a3a67d2c266a8f515a5adfbfa6e7b656cb3ac2ed8bc", size = 596632, upload-time = "2025-07-23T21:16:29.253Z" },
+    { url = "https://files.pythonhosted.org/packages/14/e2/975d4bdb418f942b53e6187b95bd9e0d5e0488b7bc214685a1e43e2c2751/patchelf-0.17.2.4-py3-none-manylinux_2_31_riscv64.musllinux_1_1_riscv64.whl", hash = "sha256:7076d9e127230982e20a81a6e2358d3343004667ba510d9f822d4fdee29b0d71", size = 508281, upload-time = "2025-07-23T21:16:30.865Z" },
 ]
 
 [[package]]
@@ -595,6 +666,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pymeshfix"
+version = "0.18.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fc/d8/c5124ee26c10bd2d77333eb5a8cddc89cb45ced9f1b173235e13ecfa6ebd/pymeshfix-0.18.1.tar.gz", hash = "sha256:c3386a123e3ecfcff59f229a4fc620ae0e03fa9c7fec025fbd2885349fa8fa3f", size = 1409525, upload-time = "2026-04-23T22:06:26.622Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/3f/c0acb23cb004270b6bd27116306bd2b775ce2c865f452b6451f168ee78d6/pymeshfix-0.18.1-cp312-abi3-macosx_10_13_x86_64.whl", hash = "sha256:365a937ce9ff3888ed994d158bdf9b9069db8d0b9684c32d3dd1056526f04980", size = 1327223, upload-time = "2026-04-23T22:06:16.984Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/11/49d95279878c6f2f9297229db4663e94af1b6c2dc6c2140764739b023e57/pymeshfix-0.18.1-cp312-abi3-macosx_11_0_arm64.whl", hash = "sha256:e451cade1c29974467a73eb5c1a216dce07114a27783eb83f681d572316dcbde", size = 1318217, upload-time = "2026-04-23T22:06:18.803Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/61/110d7a502290bcc317ebd6acfe3f2fc1064cd23175989022189ef8d5df68/pymeshfix-0.18.1-cp312-abi3-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:829fbb193dbcca117ab45fda72dfe95f18f27c09f85a21a42f33f88ace40f52a", size = 1340315, upload-time = "2026-04-23T22:06:20.718Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/2d/31c8fcd0dea754f4b9272be0984d6669a7d60b43db5ca33c4757b2adb262/pymeshfix-0.18.1-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:109956a0a3e0ac81ae7c76322c0224ac5a641e914a83a1a9904c75b40c916f74", size = 1351825, upload-time = "2026-04-23T22:06:22.778Z" },
+    { url = "https://files.pythonhosted.org/packages/11/79/07d46f90f6244edd872d95f94ae550c6af3870733fe6fd9c2a9808b02f2c/pymeshfix-0.18.1-cp312-abi3-win_amd64.whl", hash = "sha256:e926773ff90131884b26b9f925fd6f6f6d2f35c53828b8abc49512dcef00bd47", size = 1508118, upload-time = "2026-04-23T22:06:24.866Z" },
+]
+
+[[package]]
 name = "pyparsing"
 version = "3.2.5"
 source = { registry = "https://pypi.org/simple" }
@@ -642,9 +729,10 @@ wheels = [
 
 [[package]]
 name = "pyvista"
-version = "0.46.4"
+version = "0.48.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "cyclopts" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pillow" },
@@ -653,9 +741,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "vtk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/3f/701daab844e6f0570d02931b3e4b0b7e04b38f97b9c95d12403645445b23/pyvista-0.46.4.tar.gz", hash = "sha256:37ddd2783a45b552623df293e77ce93ed015244e8d89d1de179d2df594d7c571", size = 2398029, upload-time = "2025-10-30T15:24:13.144Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/11/554ae45f79d45039c733d93acb36a433b71e8c63a79bbf2f414b3685de18/pyvista-0.48.4.tar.gz", hash = "sha256:c639dad1bddff5e366d77371f66f783f6e6a0581446810a66439902222d8db07", size = 2581423, upload-time = "2026-05-18T02:25:51.828Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/e5/41a88ce247c606a12498a9297ef323b441b2be811599033a06ea62af0724/pyvista-0.46.4-py3-none-any.whl", hash = "sha256:f113a8db2f49ae1b2f9eeb477c51a4038a4dfdd02ac097900aa49bf1d77f7b2e", size = 2448669, upload-time = "2025-10-30T15:24:11.112Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/91/696d869e4df2e25a5b201a69ce69a2204d37fad3e90c2b731f7b3f1d7c68/pyvista-0.48.4-py3-none-any.whl", hash = "sha256:a46eda178e10e279afda550c341676a82dcee607c86db74565fa455ac0bd23e2", size = 2629373, upload-time = "2026-05-18T02:25:49.919Z" },
 ]
 
 [[package]]
@@ -684,6 +772,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b3/c6/f3b320c27991c46f43ee9d856302c70dc2d0fb2dba4842ff739d5f46b393/rich-14.3.3.tar.gz", hash = "sha256:b8daa0b9e4eef54dd8cf7c86c03713f53241884e814f4e2f5fb342fe520f639b", size = 230582, upload-time = "2026-02-19T17:23:12.474Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/25/b208c5683343959b670dc001595f2f3737e051da617f66c31f7c4fa93abc/rich-14.3.3-py3-none-any.whl", hash = "sha256:793431c1f8619afa7d3b52b2cdec859562b950ea0d4b6b505397612db8d5362d", size = 310458, upload-time = "2026-02-19T17:23:13.732Z" },
+]
+
+[[package]]
+name = "rich-rst"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pygments" },
+    { name = "rich" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e2/d6/d0b9fafc73b65767200da027acab1db1bdb1048f4fea5ebf659df01c700e/rich_rst-2.1.0.tar.gz", hash = "sha256:f4d117b49697f338769759fa5cacf5197da4888b347b9fda2e50aef5cd8d93bd", size = 302732, upload-time = "2026-07-05T02:59:44.308Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2a/68/1fc93dd759605b5d00fc98b50200739e41ed32bd22d6ba35ca6c3932371b/rich_rst-2.1.0-py3-none-any.whl", hash = "sha256:7ecd1343ee12c879d0e7ae74c3eb6d263b023d2929c6d114212eb1fd91057255", size = 272987, upload-time = "2026-07-05T02:59:42.792Z" },
 ]
 
 [[package]]
@@ -754,9 +855,11 @@ dependencies = [
     { name = "gmsh" },
     { name = "loguru" },
     { name = "meshio" },
+    { name = "mmgpy", extra = ["pyvista"] },
     { name = "polars" },
     { name = "pyacvd" },
     { name = "pydantic" },
+    { name = "pymeshfix" },
     { name = "scikit-learn" },
     { name = "simpleitk" },
     { name = "simpleitkutilities" },
@@ -778,9 +881,11 @@ requires-dist = [
     { name = "gmsh", specifier = ">=4.15.2" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "meshio", specifier = ">=5.3.5" },
+    { name = "mmgpy", extras = ["pyvista"], specifier = ">=0.16.2" },
     { name = "polars", specifier = ">=1.43.1" },
     { name = "pyacvd", specifier = ">=0.3.2" },
     { name = "pydantic", specifier = ">=2.13.4" },
+    { name = "pymeshfix", specifier = ">=0.18.1" },
     { name = "scikit-learn", specifier = ">=1.9.0" },
     { name = "simpleitk", specifier = ">=2.5.2" },
     { name = "simpleitkutilities", specifier = ">=0.3.0" },
