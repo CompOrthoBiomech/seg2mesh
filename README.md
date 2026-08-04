@@ -1,6 +1,6 @@
 # Summary
 
-`seg2mesh` is a toolkit for processing segmentatation label images, convert these to triangular meshes, and process the meshes with various downstream tasks. It also enables characterization of geometric changes between processed and unprocessed meshes including:
+`seg2mesh` is a toolkit for processing segmentatation label images, extracting isocontours from label images as triangular meshes, and process the meshes with various downstream tasks. It also enables characterization of geometric changes between processed and unprocessed meshes including:
 
 Distance metrics:
 
