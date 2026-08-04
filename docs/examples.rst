@@ -1,10 +1,7 @@
 Examples
 ========
 
-.. toctree::
-   :maxdepth: 2
-
-Pre-requisites
+Prerequisites
 --------------
 
 We use the segmentation labels for OpenKnee(s) model 003 for these examples. You can download the
