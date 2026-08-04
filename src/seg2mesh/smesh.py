@@ -79,7 +79,6 @@ def add_scalardict_to_field_data(field_data: dict[str, float], poly: vtkPolyData
         arr.SetName(key)
         arr.InsertNextValue(value)
         poly.GetFieldData().AddArray(arr)
-    logger.info(poly)
     return poly
 
 
