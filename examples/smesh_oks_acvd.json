@@ -1,0 +1,14 @@
+{
+  "label_file": "../dat/examples/openknee/processed.seg.nrrd",
+  "lut_file": "../dat/examples/openknee/processed.seg.json",
+  "output_path": "../dat/examples/openknee",
+  "calculate_distance_metrics": true,
+  "calculate_classification_metrics": true,
+  "voxel_edge": 0.25,
+  "taubin_smoothing_factor1": 0.8,
+  "taubin_iterations1": 60,
+  "taubin_smoothing_factor2": 0.2,
+  "taubin_iterations2": 40,
+  "remesh_options": { "edge_length": 0.75 },
+  "output_formats": ["vtp", "stl"]
+}
