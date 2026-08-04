@@ -74,7 +74,6 @@ def get_compatible_origin_and_size(poly1: vtkPolyData, poly2: vtkPolyData, voxel
 def add_scalardict_to_field_data(field_data: dict[str, float], poly: vtkPolyData) -> vtkPolyData:
     for key, value in field_data.items():
         arr = vtkFloatArray()
-        arr.SetNumberOfValues(1)
         arr.SetNumberOfComponents(1)
         arr.SetName(key)
         arr.InsertNextValue(value)

@@ -81,10 +81,10 @@ def main(config: SurfaceMeshPipeline):
                     if not obj_path.exists():
                         obj_path.mkdir(parents=True, exist_ok=True)
                     disk.write_vtp(new_contour, obj_path.joinpath(f"{name}.obj"))
-    save_model_to_json(config, output_path.joinpath("config.json"))
+    save_model_to_json(config, output_path.joinpath("smesh_pipeline_config.json"))
     if metrics:
         df = DataFrame(metrics)
-        df.write_csv(output_path.joinpath("metrics.csv"))
+        df.write_csv(output_path.joinpath("error_metrics.csv"))
 
 
 if __name__ == "__main__":

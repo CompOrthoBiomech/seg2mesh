@@ -115,3 +115,53 @@ Execute the pipeline as before with:
     uv run python -m seg2mesh.vol_pipeline process_oks_multilabel_vol.json
 
 Output files will be written to `../dat/examples/openknee_multilabel` as specified by the `output_path` attribute.
+
+Label Image to Mesh Pipeline
+----------------------------
+
+This pipeline first extracts each isocontour by its integer value. It then applies a sequence of optional
+smoothing, remeshing, and error calculation operations configured by the :class:`seg2mesh.config.SurfaceMeshPipeline` class. Specifically, these are as follows:
+
+- Taubin smoothing: defined by `taubin_smoothing_factor1` and `taubin_iterations1` options. Turn off smoothing by setting `taubin_iterations1 <= 0`.
+- Remeshing: applied based on provided `remesh_options`. If None, no remeshing is performed. If `remesh_options`
+  is :class:`seg2mesh.config.AcvdOptions`, the Approximate Centroidal Voronoi Diagram (ACVD) algorithm is used to remesh the mesh,
+  otherwise if it is :class:`seg2mesh.config.MmgOptions`, the `mmg3d` remeshing library is used. Consult the class
+  documentations for more details.
+- Taubin smoothing: defined by `taubin_smoothing_factor2` and `taubin_iterations2` options. Turn off smoothing by setting `taubin_iterations1 <= 0`.
+- Error metric calculation
+
+  - If `calculate_distance_metrics` is `True`, Hausdorff, Mean Symmetric Surface, and Root Mean Square Distance metrics are calculated.
+  - If `calculate_classification_metrics` is `True`, Dice Coefficient, Intersection over Union, and Accuracy metrics are calculated.
+  - Metrics are saved to disk as CSV and also appended to the final processed polydata as FieldData.
+
+.. note::
+   If `calculate_classification_metrics` is `True`, one should also set `voxel_edge` to be similar to the voxel
+   size of the label image. These metrics require a voxelization or the mesh, and it should be of similar or
+   equal resolution as the original label volumes.
+
+Example: Label image to mesh with uniform (ACVD) remeshing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/smesh_oks_acvd.json
+    :language: json
+    :caption: Example JSON configuration for extracting isocontour from a label intensity image and processing the resulting mesh.
+
+Execute the pipeline with:
+
+.. code-block:: bash
+
+    uv run python -m seg2mesh.smesh_pipeline smesh_oks_acvd.json
+
+
+Example: Label image to mesh with adaptive (mmg3d) remeshing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/smesh_oks_mmg.json
+    :language: json
+    :caption: Example JSON configuration for extracting isocontour from a label intensity image and processing the resulting mesh.
+
+Execute the pipeline with:
+
+.. code-block:: bash
+
+    uv run python -m seg2mesh.smesh_pipeline smesh_oks_mmg.json
