@@ -3,9 +3,16 @@
 *.msh
 *.stl
 *.nii
+*.nii.gz
+*.nrrd
+*.mhd
+*.raw
+*.log
+*.csv
 oks003
 docs/_build
 docs/_templates
+dat/
 # Python-generated files
 __pycache__/
 *.py[oc]
