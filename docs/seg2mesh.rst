@@ -21,3 +21,19 @@ seg2mesh.smesh
    :members:
    :show-inheritance:
    :undoc-members:
+
+seg2mesh.vol_pipeline
+---------------------
+
+.. automodule:: seg2mesh.vol_pipeline
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+seg2mesh.smesh_pipeline
+-----------------------
+
+.. automodule:: seg2mesh.smesh_pipeline
+   :members:
+   :show-inheritance:
+   :undoc-members:

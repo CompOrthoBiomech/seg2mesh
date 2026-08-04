@@ -71,6 +71,18 @@ def get_compatible_origin_and_size(poly1: vtkPolyData, poly2: vtkPolyData, voxel
     return origin, size
 
 
+def add_scalardict_to_field_data(field_data: dict[str, float], poly: vtkPolyData) -> vtkPolyData:
+    for key, value in field_data.items():
+        arr = vtkFloatArray()
+        arr.SetNumberOfValues(1)
+        arr.SetNumberOfComponents(1)
+        arr.SetName(key)
+        arr.InsertNextValue(value)
+        poly.GetFieldData().AddArray(arr)
+    logger.info(poly)
+    return poly
+
+
 def voxelize_mesh(
     mesh: vtkPolyData, voxel_edge: float, origin: npt.NDArray, size: npt.NDArray, max_voxels: int = 1_000_000_000
 ) -> vtkImageData:

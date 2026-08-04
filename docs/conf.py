@@ -21,7 +21,7 @@ extensions = [
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_copybutton",
 ]
-suppress_warnings = ["sphinx_autodoc_typehints.forward_reference"]
+suppress_warnings = ["sphinx_autodoc_typehints.forward_reference", "sphinx_autodoc_typehints.guarded_import"]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

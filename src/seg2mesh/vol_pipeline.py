@@ -16,6 +16,11 @@ from seg2mesh.vol import (
 
 
 def main(config: SegmentationPipeline):
+    """
+    A pipeline for processing segmentation volumes. See :ref:`segmentation-label-volume-processing-pipeline`.
+
+    :param config: A SegmentationPipeline configuration either instantiated in-code or provided via a JSON filepath CLI argument.
+    """
     output_path = Path(config.output_path)
     if not output_path.exists():
         output_path.mkdir(parents=True, exist_ok=True)
@@ -52,8 +57,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.remove()
     logger.enable("seg2mesh")
-    logger.add(args.log_file, level=args.log_level, format="{time} {level} {message}", mode="w")
-    logger.add(stderr, level=args.log_level, format="{time} {level} {message}")
+    logger.add(args.log_file, level=args.log_level, mode="w")
+    logger.add(stderr, level=args.log_level)
 
     config = parse_model_from_json(SegmentationPipeline, args.config)
     main(config)

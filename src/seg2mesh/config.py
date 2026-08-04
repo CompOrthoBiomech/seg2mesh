@@ -4,7 +4,7 @@ This module contains configuration classes for constructing pipelines to process
 
 import json
 from pathlib import Path
-from typing import TypeVar
+from typing import Literal, TypeVar
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -119,6 +119,10 @@ class SurfaceMeshPipeline(BaseModel, frozen=True):
     """
     Whether to calculate classification metrics: Dice Coefficient, Intersection over Union, and Accuracy
     """
+    voxel_edge: float = 0.3
+    """
+    Voxel edge length to use when voxelizing mesh for classification metric calculation.
+    """
     taubin_smoothing_factor1: float = 0.8
     """
     Passband for the first Taubin smoothing operation
@@ -141,6 +145,7 @@ class SurfaceMeshPipeline(BaseModel, frozen=True):
     Number of iterations for the Taubin smoothing operation after remesh
     NOTE: If <= 0 or if `remesh_options` is None, no smoothing is performed.
     """
+    output_formats: list[Literal["vtp", "stl", "ply", "obj"]] = ["vtp"]
 
 
 BaseModelType = TypeVar("BaseModelType", bound=BaseModel)

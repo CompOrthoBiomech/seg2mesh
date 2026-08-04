@@ -52,6 +52,8 @@ You should now have a file structure in ``seg2mesh/dat`` that looks like this:
 
 Congratulations! You are ready to run the examples.
 
+.. _segmentation-label-volume-processing-pipeline:
+
 Segmentation Label Volume Processing Pipeline
 ---------------------------------------------
 
@@ -80,6 +82,12 @@ for `seg2mesh.vol_pipeline` by running:
 .. code-block:: bash
 
     uv run python -m seg2mesh.vol_pipeline --help
+
+.. note::
+    The order of `source_files` matters. Later entries take precedence over earlier ones, if there
+    is overclosure. We order the files as bones, then ligaments, then menisci, then cartilage. This
+    ensures the thin cartilage structures take precedence, since changes in thickness will have very
+    strong structural effects.
 
 Example: Segmentation labels in a single file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
