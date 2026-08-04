@@ -3,9 +3,8 @@ This module contains configuration classes for constructing pipelines to process
 """
 
 from pathlib import Path
-from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SegmentationProcessing(BaseModel, frozen=True):
@@ -40,10 +39,57 @@ class SegmentationPipeline(BaseModel, frozen=True):
     Configuration class for a segmentation pipeline.
     """
 
-    source_path: str | Path
+    source_files: list[str | Path] = Field(default_factory=list)
+    """
+    List of label images.
+    """
+    lut: dict[str, int] | None = None
+    """
+    Dictionary mapping a label name to its integer value. If only 1 file is indicated for
+    source_files, it is recommended to define this lut. Otherwise, label names will just
+    be strings of their respective integer values.
+    """
     output_path: str | Path
-    file_extension: Literal[".nii", ".nii.gz", ".nrrd", ".mha"] = ".nii"
+    """
+    Path to write output files to.
+    """
     processing_options: SegmentationProcessing
+    """
+    BaseModel defining segmentation processing options.
+    """
+
+
+class MmgOptions(BaseModel, frozen=True):
+    hmin: float = Field(default=0.2, gt=0.0)
+    """
+    Minimum target element edge length
+    """
+    hmax: float = Field(default=1.0, gt=0.0)
+    """
+    Maximum target element edge length
+    """
+    hgrad: float = Field(default=1.5, ge=1.0)
+    """
+    Ratio defining how quickly edge length can change
+    """
+    divisions_per_circle: float = Field(default=8.0, gt=1.0)
+    """
+    Assuming a circle with the local radius of curvature, edge length
+    is defined as arc length of circle with this many divisions
+    """
+
+    @model_validator(mode="after")
+    def _check_hmax_hmin(self):
+        if self.hmax < self.hmin:
+            raise ValueError("hmax must be greater than or equal to hmin")
+        return self
+
+
+class AcvdOptions(BaseModel, frozen=True):
+    edge_length: float = Field(default=1.0, gt=0.0)
+    """
+    Target edge length for ACVD remeshing
+    """
 
 
 class SurfaceMeshPipeline(BaseModel, frozen=True):
@@ -51,30 +97,33 @@ class SurfaceMeshPipeline(BaseModel, frozen=True):
     """
     Path to image file containing all anatomical labels
     """
+    lut_file: str | Path
+    """
+    Path to JSON file containing lookup table for anatomical labels
+    """
     output_directory: str | Path
     """
     Path for output files
     """
-    taubin_passband1: float = 0.001
+    taubin_smoothing_factor1: float = 0.8
     """
     Passband for the first Taubin smoothing operation
     """
-    taubin_iterations1: int = 40
+    taubin_iterations1: int = 60
     """
     Number of iterations for the first Taubin smoothing operation.
     NOTE: If <= 0, no smoothing is performed.
     """
-    remesh_edge_length: float = -1.0
+    remesh_options: MmgOptions | AcvdOptions | None = None
     """
-    Edge length for the remesh operation.
-    NOTE: If < 0, no remesh is performed.
+    BaseModel for remesh options. If None, no remesh is performed.
     """
-    taubin_passband2: float = 0.01
+    taubin_smoothing_factor2: float = 0.2
     """
     Passband for the Taubin smoothing operation after remesh
     """
-    taubin_iterations2: int = 20
+    taubin_iterations2: int = 40
     """
     Number of iterations for the Taubin smoothing operation after remesh
-    NOTE: If <= 0 or if `remesh_edge_length` is < 0, no smoothing is performed.
+    NOTE: If <= 0 or if `remesh_options` is None, no smoothing is performed.
     """

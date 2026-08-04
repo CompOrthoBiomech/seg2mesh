@@ -5,7 +5,9 @@ seg2mesh: A Python package for segmentation and mesh processing
    :maxdepth: 2
    :caption: Contents:
 
+   examples
    modules
+
 
 Indices and tables
 ==================

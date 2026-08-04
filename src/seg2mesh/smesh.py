@@ -75,7 +75,7 @@ def voxelize_mesh(
     mesh: vtkPolyData, voxel_edge: float, origin: npt.NDArray, size: npt.NDArray, max_voxels: int = 1_000_000_000
 ) -> vtkImageData:
     """
-    Voxelizes a mesh into a vtkImageData volume using the utilizes a vtkPolyDataToImageStencil filter.
+    Voxelizes a mesh into a vtkImageData volume using the vtkPolyDataToImageStencil filter.
 
     :param voxel_edge: The edge length of the voxels.
     :param origin: The origin of the vtkImageData volume.
@@ -318,7 +318,7 @@ def get_curvatures(poly: vtkPolyData, curvature_type: Literal["maximum", "minimu
 
 
 def mmg_remesh(
-    poly: vtkPolyData, hmax: float = 1.0, hmin: float = 0.2, divisions_per_circle: float = 16, hgrad: float = 1.5
+    poly: vtkPolyData, hmax: float = 1.0, hmin: float = 0.2, divisions_per_circle: float = 8.0, hgrad: float = 1.5
 ) -> vtkPolyData:
     """
     Adaptive remeshing using mmg3d. Note: we override the default Hausdorff parameter and rely
