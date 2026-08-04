@@ -1,0 +1,39 @@
+{
+  "source_files": [
+    "../dat/oks003/segmentation/oks003_FBB_AGS.nii",
+    "../dat/oks003/segmentation/oks003_FMB_AGS.nii",
+    "../dat/oks003/segmentation/oks003_TBB_AGS.nii",
+    "../dat/oks003/segmentation/oks003_PTB_AGS.nii",
+    "../dat/oks003/segmentation/oks003_ACL_AGS.nii",
+    "../dat/oks003/segmentation/oks003_LCL_AGS.nii",
+    "../dat/oks003/segmentation/oks003_MCL_AGS_02.nii",
+    "../dat/oks003/segmentation/oks003_PCL_AGS.nii",
+    "../dat/oks003/segmentation/oks003_PTL_AGS.nii",
+    "../dat/oks003/segmentation/oks003_QAT_AGS.nii",
+    "../dat/oks003/segmentation/oks003_MNS-L_AGS_02.nii",
+    "../dat/oks003/segmentation/oks003_MNS-M_AGS_02.nii",
+    "../dat/oks003/segmentation/oks003_TBC-L_AGS.nii",
+    "../dat/oks003/segmentation/oks003_TBC-M_AGS.nii",
+    "../dat/oks003/segmentation/oks003_FMC_AGS_03.nii",
+    "../dat/oks003/segmentation/oks003_PTC_AGS.nii"
+  ],
+  "output_path": "../dat/examples/openknee",
+  "target_voxel_size": [0.25, 0.25, 0.25],
+  "processing_options": {
+    "close": true,
+    "closing_radius": [4, 4, 4],
+    "open_list": [
+      "oks003_LCL_AGS",
+      "oks003_MNS-L_AGS_02",
+      "oks003_MNS-M_AGS_02"
+    ],
+    "opening_radius": [1, 1, 1],
+    "spur_removal_length": 10,
+    "make_contiguous": [
+      ["oks003_FMC_AGS_03", "oks003_FMB_AGS"],
+      ["oks003_TBC-L_AGS", "oks003_TBB_AGS"],
+      ["oks003_TBC-M_AGS", "oks003_TBB_AGS"],
+      ["oks003_PTC_AGS", "oks003_PTB_AGS"]
+    ]
+  }
+}

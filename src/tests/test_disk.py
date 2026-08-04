@@ -20,7 +20,8 @@ def test_image_roundtrip(data_files, tmp_path):
 
 
 def test_read_images(data_files):
-    disk.read_images(data_files, filenames=["tibia.nrrd", "tibia_cartilage.nrrd", "femur.nrrd", "femur_cartilage.nrrd"])
+    filepaths = [data_files.joinpath(f) for f in ["tibia.nrrd", "tibia_cartilage.nrrd", "femur.nrrd", "femur_cartilage.nrrd"]]
+    disk.read_images(filepaths)
 
 
 def test_read_bad_image(empty_file):

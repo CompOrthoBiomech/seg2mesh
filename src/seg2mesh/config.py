@@ -2,7 +2,9 @@
 This module contains configuration classes for constructing pipelines to process segmentations and generate surface meshes.
 """
 
+import json
 from pathlib import Path
+from typing import TypeVar
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -48,6 +50,10 @@ class SegmentationPipeline(BaseModel, frozen=True):
     Dictionary mapping a label name to its integer value. If only 1 file is indicated for
     source_files, it is recommended to define this lut. Otherwise, label names will just
     be strings of their respective integer values.
+    """
+    target_voxel_size: tuple[float, float, float] = (0.2, 0.2, 0.2)
+    """
+    The target voxel size for the output mesh.
     """
     output_path: str | Path
     """
@@ -101,9 +107,17 @@ class SurfaceMeshPipeline(BaseModel, frozen=True):
     """
     Path to JSON file containing lookup table for anatomical labels
     """
-    output_directory: str | Path
+    output_path: str | Path
     """
     Path for output files
+    """
+    calculate_distance_metrics: bool = True
+    """
+    Whether to calculate Hausdorff, Mean Symmetric Surface, and Root Mean Square Distance metrics
+    """
+    calculate_classification_metrics: bool = True
+    """
+    Whether to calculate classification metrics: Dice Coefficient, Intersection over Union, and Accuracy
     """
     taubin_smoothing_factor1: float = 0.8
     """
@@ -127,3 +141,17 @@ class SurfaceMeshPipeline(BaseModel, frozen=True):
     Number of iterations for the Taubin smoothing operation after remesh
     NOTE: If <= 0 or if `remesh_options` is None, no smoothing is performed.
     """
+
+
+BaseModelType = TypeVar("BaseModelType", bound=BaseModel)
+
+
+def parse_model_from_json[BaseModelType](model: type[BaseModelType], file: str | Path) -> BaseModelType:
+    with open(file, "r") as f:
+        data = json.load(f)
+    return model(**data)
+
+
+def save_model_to_json(model: BaseModel, file: str | Path):
+    with open(file, "w") as f:
+        f.write(model.model_dump_json(indent=4))

@@ -1,0 +1,36 @@
+{
+  "source_files": ["../dat/examples/openknee/unprocessed.seg.nrrd"],
+  "output_path": "../dat/examples/openknee_multilabel",
+  "target_voxel_size": [0.25, 0.25, 0.25],
+  "lut": {
+    "FBB": 1,
+    "FMB": 2,
+    "TBB": 3,
+    "PTB": 4,
+    "ACL": 5,
+    "LCL": 6,
+    "MCL": 7,
+    "PCL": 8,
+    "PTL": 9,
+    "QAT": 10,
+    "MNS-L": 11,
+    "MNS-M": 12,
+    "TBC-L": 13,
+    "TBC-M": 14,
+    "FMC": 15,
+    "PTC": 16
+  },
+  "processing_options": {
+    "close": true,
+    "closing_radius": [4, 4, 4],
+    "open_list": ["LCL", "MNS-L", "MNS-M"],
+    "opening_radius": [1, 1, 1],
+    "spur_removal_length": 10,
+    "make_contiguous": [
+      ["FMC", "FMB"],
+      ["TBC-L", "TBB"],
+      ["TBC-M", "TBB"],
+      ["PTC", "PTB"]
+    ]
+  }
+}

@@ -20,11 +20,10 @@ def read_image(filepath: Path | str) -> sitk.Image:
     return image
 
 
-def read_images(dirpath: Path | str, filenames: list[str]) -> list[sitk.Image]:
-    dirpath = Path(dirpath)
+def read_images(filepaths: list[Path | str]) -> list[sitk.Image]:
     images = []
-    for file in filenames:
-        images.append(read_image(dirpath.joinpath(file)))
+    for file in filepaths:
+        images.append(read_image(Path(file)))
     return images
 
 

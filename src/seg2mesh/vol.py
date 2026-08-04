@@ -108,6 +108,12 @@ def resample_label_image(
     )
 
 
+def create_lut_from_label_image(label_image: sitk.Image) -> dict[str, int]:
+    labels = sitk.LabelShapeStatisticsImageFilter()
+    labels.Execute(label_image)
+    return {str(label): int(label) for label in labels.GetLabels()}
+
+
 def remove_islands(image: sitk.Image) -> sitk.Image:
     """
     Remove islands (by keeping only the largest connected component) in a binary image.
@@ -119,7 +125,6 @@ def remove_islands(image: sitk.Image) -> sitk.Image:
     components.SetFullyConnected(False)
     connected = components.Execute(image)
     sorted_labels = sitk.RelabelComponent(connected, sortByObjectSize=True)
-    sitk.WriteImage(sorted_labels, "sorted_labels.nrrd")
     return sorted_labels == 1
 
 
