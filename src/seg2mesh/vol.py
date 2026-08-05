@@ -117,7 +117,7 @@ def resample_greyscale(image: sitk.Image, spacing: tuple[float, float, float] | 
     origin = np.min([start_point, end_point], axis=0)
     corner = np.max([start_point, end_point], axis=0)
     physical_size = corner - origin
-    img_size = [int(np.ceil(physical_size[i] / spacing[i])) for i in range(3)]
+    img_size = [int(np.ceil(physical_size[i] / spacing[i])) for i in range(3)]  # type: ignore
     canvas = sitk.Image(*img_size, sitk.sitkUInt8)
     canvas.SetOrigin(origin)
     canvas.SetSpacing(spacing)
