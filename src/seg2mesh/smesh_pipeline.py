@@ -70,17 +70,17 @@ def main(config: SurfaceMeshPipeline):
                     stl_path = output_path.joinpath("stl")
                     if not stl_path.exists():
                         stl_path.mkdir(parents=True, exist_ok=True)
-                    disk.write_vtp(new_contour, stl_path.joinpath(f"{name}.stl"))
+                    disk.write_stl(new_contour, stl_path.joinpath(f"{name}.stl"))
                 case "ply":
                     ply_path = output_path.joinpath("ply")
                     if not ply_path.exists():
                         ply_path.mkdir(parents=True, exist_ok=True)
-                    disk.write_vtp(new_contour, ply_path.joinpath(f"{name}.ply"))
+                    disk.write_ply(new_contour, ply_path.joinpath(f"{name}.ply"))
                 case "obj":
                     obj_path = output_path.joinpath("obj")
                     if not obj_path.exists():
                         obj_path.mkdir(parents=True, exist_ok=True)
-                    disk.write_vtp(new_contour, obj_path.joinpath(f"{name}.obj"))
+                    disk.write_obj(new_contour, obj_path.joinpath(f"{name}.obj"))
     save_model_to_json(config, output_path.joinpath("smesh_pipeline_config.json"))
     if metrics:
         df = DataFrame(metrics)
