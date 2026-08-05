@@ -1,8 +1,8 @@
 # Summary
 
-`seg2mesh` is a toolkit for processing segmentatation label images, extracting isocontours from label images as triangular meshes, and process the meshes with various downstream tasks.
+`seg2mesh` is a toolkit for processing segmentatation label images, extracting isocontours from label images as triangular meshes, and processing these meshes with various downstream tasks.
 
-For label image processing operations such as:
+For label image processing, operations such as:
 
 - Resampling
 
@@ -14,13 +14,17 @@ For label image processing operations such as:
 - Binary Pruning (To remove spurious label regions)
 - A multistep procedure to make labels contiguous
 
-For mesh processing operations such as:
+are provided.
+
+For mesh processing, operations such as:
 
 - Taubin Smoothing
 - Uniform Remeshing with the Approximated Discreted Centroidal Voronoi Diagram algorithm
 - Adaptive Remeshing with `mmg3d` using a metric automatically assigned based on local curvature
 
-It also enables characterization of geometric changes between processed and unprocessed meshes including:
+are provided.
+
+`seg2mesh` also enables characterization of geometric changes between processed and unprocessed meshes including:
 
 Distance metrics:
 
@@ -37,4 +41,4 @@ Classification metrics:
 # Getting Started
 
 Please refer to the `seg2mesh` [Documentation](https://comporthobiomech.github.io/seg2mesh/) for
-detailed instructions on installation, example usage, and API documentation via Sphinx.
+detailed instructions on installation, example usage, and API documentation auto-generated via Sphinx.

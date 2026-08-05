@@ -1,6 +1,9 @@
 Installation
 ============
 
+.. note::
+    Whenever you are updating `seg2mesh`, remember to first do a `git pull` (or Download the ZIP and extract) to get the latest version.
+
 Prerequisites
 -------------
 
@@ -9,7 +12,7 @@ Install the `uv` package manager:
 
 `uv` is an ultra-fast Python package manager that makes environment and dependency management much easier.
 
-To install on Windows in a Powershell terminal execute:
+To install on Windows, in a Powershell terminal execute:
 
 .. code-block:: powershell
 
@@ -26,13 +29,13 @@ Install git:
 
 **On Windows:**
 
-You have options, but if you're new to Git, a simple option is to install the `GitHub Desktop <https://desktop.github.com/>`_ application.
+You have options, but if you're new to Git, a simple solution is to install the `GitHub Desktop <https://desktop.github.com/>`_ application.
 
 **On macOS:**
 
 Again, you have options, but using `brew` is quite nice.
 
-If you need to install `brew`, you can install it with,
+If you need to install `brew`, you can do so with,
 
 .. code-block:: bash
 
@@ -88,6 +91,7 @@ Install or Update seg2mesh:
 After completing the prerequisites, you can install seg2mesh by running the following command:
 
 .. code-block:: bash
+
     uv sync
 
 From anywhere in the repository root directory or below.
