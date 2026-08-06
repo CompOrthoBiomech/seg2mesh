@@ -8,7 +8,7 @@ Prerequisites
 -------------
 
 Install the `uv` package manager:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `uv` is an ultra-fast Python package manager that makes environment and dependency management much easier.
 
